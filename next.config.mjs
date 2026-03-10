@@ -11,6 +11,9 @@ const __dirname = path.dirname(__filename);
 const nextConfig = {
   reactStrictMode: true,
 
+  // Enable standalone output for Docker
+  output: 'standalone',
+
   experimental: {
     // Optimize package imports to reduce bundle size
     optimizePackageImports: [
