@@ -82,6 +82,7 @@ export const TabsClient = (props: Props) => {
       case "lessons": return "/my/lessons";
       case "donation": return "/my/donate";
       case "volunteer": return "/my/volunteer";
+      case "url": return link.url || null; // Support external URL links
       default: return null; // Other link types (bible, sermons, stream, etc.) don't have /my routes
     }
   };
