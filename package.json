@@ -17,10 +17,10 @@
     "test": "playwright test",
     "test:headed": "playwright test --headed",
     "test:ui": "playwright test --ui",
-    "postinstall": "copyfiles -a -f node_modules/@churchapps/apphelper/public/locales/** public/apphelper/locales && copyfiles -a -f node_modules/@churchapps/apphelper-markdown/dist/editor.css public/apphelper/css && copyfiles -a -f node_modules/react-cropper/node_modules/cropperjs/dist/cropper.css public/css"
+    "postinstall": "copyfiles -a -f node_modules/@churchapps/apphelper/public/locales/** public/apphelper/locales && copyfiles -a -f node_modules/@churchapps/apphelper-markdown/dist/editor.css public/apphelper/css && copyfiles -a -f node_modules/react-cropper/node_modules/cropperjs/dist/cropper.css public/css && node scripts/patch-apphelper.cjs"
   },
   "dependencies": {
-    "@churchapps/apphelper": "git+https://github.com/Neo-Technologies-ke/Packages.git#vps_setup:apphelper",
+    "@churchapps/apphelper": "0.6.19",
     "@churchapps/apphelper-donations": "^0.6.17",
     "@churchapps/apphelper-forms": "^0.6.14",
     "@churchapps/apphelper-login": "^0.6.18",
