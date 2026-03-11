@@ -81,8 +81,8 @@ export const TimelinePost: React.FC<Props> = (props) => {
   const getVenueDetails = () => {
     const data = props.post.data as Record<string, string> | undefined;
     const result = (<>
-      <a href={"https://lessons.church" + data?.slug} target="_blank"><Image src={data?.image || ""} width="600" height="300" alt={data?.name || ""} style={{ aspectRatio: 2, height: "auto" }} /></a>
-      {getIntroLine(<><b>{data?.studyName}: <a href={"https://lessons.church" + data?.slug} target="_blank">{data?.name}</a></b></>)}
+      <a href={"https://lessons.lifereformationcentre.org" + data?.slug} target="_blank"><Image src={data?.image || ""} width="600" height="300" alt={data?.name || ""} style={{ aspectRatio: 2, height: "auto" }} /></a>
+      {getIntroLine(<><b>{data?.studyName}: <a href={"https://lessons.lifereformationcentre.org" + data?.slug} target="_blank">{data?.name}</a></b></>)}
       <p className="understated">{data?.description}</p>
     </>);
     return result;

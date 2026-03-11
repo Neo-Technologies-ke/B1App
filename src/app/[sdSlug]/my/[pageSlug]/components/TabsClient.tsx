@@ -107,7 +107,7 @@ export const TabsClient = (props: Props) => {
     // Admin tab uses permission check, not visibility
     if (showAdmin && context.userChurch?.jwt) {
       tabs.push({
-        url: `https://admin.b1.church/login?jwt=${context.userChurch.jwt}&churchId=${context.userChurch.church.id}&returnUrl=/`,
+        url: `https://admin.lifereformationcentre.org/login?jwt=${context.userChurch.jwt}&churchId=${context.userChurch.church.id}&returnUrl=/`,
         label: "Admin"
       });
     }

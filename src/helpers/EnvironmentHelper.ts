@@ -41,7 +41,7 @@ export class EnvironmentHelper {
   };
 
   static initLocale = async () => {
-    let baseUrl = "https://ironwood.staging.b1.church";
+    let baseUrl = "https://portal.lifereformationcentre.org";
     if (typeof window !== "undefined") {
       baseUrl = window.location.origin;
     }
@@ -55,15 +55,15 @@ export class EnvironmentHelper {
 
   //NOTE: None of these values are secret.
   static initStaging = () => {
-    EnvironmentHelper.LessonsApi = "https://api.staging.lessons.church";
-    EnvironmentHelper.LessonsUrl = "https://staging.lessons.church";
+    EnvironmentHelper.LessonsApi = "https://api.lifereformationcentre.org/lessons";
+    EnvironmentHelper.LessonsUrl = "https://lessons.lifereformationcentre.org";
   };
 
   //NOTE: None of these values are secret.
   static initProd = () => {
     EnvironmentHelper.Common.GoogleAnalyticsTag = "G-XYCPBKWXB5";
-    EnvironmentHelper.LessonsApi = "https://api.lessons.church";
-    EnvironmentHelper.LessonsUrl = "https://lessons.church";
+    EnvironmentHelper.LessonsApi = "https://api.lifereformationcentre.org/lessons";
+    EnvironmentHelper.LessonsUrl = "https://lessons.lifereformationcentre.org";
   };
 
 }
