@@ -75,7 +75,7 @@ export class TemplateHelper {
 
   static home = {
     page: { layout: "headerFooter", title: "Home", url: "/" },
-    heroSection: { background: "https://content.churchapps.org/stockPhotos/4/bible.png", headingColor: "var(--light)", linkColor: "var(--light)", pageId: "", sort: 1, textColor: "var(--light)", zone: "main" },
+    heroSection: { background: "https://lifereformationcentre.org/images/stock/bible.png", headingColor: "var(--light)", linkColor: "var(--light)", pageId: "", sort: 1, textColor: "var(--light)", zone: "main" },
     heroHeading: { elementType: "text", sectionId: "", sort: 1, answersJSON: "", answers: { text: "", textAlignment: "center" } },
     aboutSection: { background: "var(--light)", headingColor: "var(--dark)", linkColor: "var(--darkAccent)", pageId: "", sort: 2, textColor: "var(--dark)", zone: "main" },
     aboutHeading: { elementType: "text", sectionId: "", sort: 1, answersJSON: `{\"textAlignment\":\"center\",\"text\":\"#### About Us\"}`, answers: { text: "#### About Us", textAlignment: "center" } },

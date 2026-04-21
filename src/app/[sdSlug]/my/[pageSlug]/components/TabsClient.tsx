@@ -82,6 +82,7 @@ export const TabsClient = (props: Props) => {
       case "lessons": return "/my/lessons";
       case "donation": return "/my/donate";
       case "volunteer": return "/my/volunteer";
+      case "url": return link.url || null; // Support external URL links
       default: return null; // Other link types (bible, sermons, stream, etc.) don't have /my routes
     }
   };
@@ -107,7 +108,7 @@ export const TabsClient = (props: Props) => {
     // Admin tab uses permission check, not visibility
     if (showAdmin && context.userChurch?.jwt) {
       tabs.push({
-        url: `https://admin.b1.church/login?jwt=${context.userChurch.jwt}&churchId=${context.userChurch.church.id}&returnUrl=/`,
+        url: `https://admin.lifereformationcentre.org/login?jwt=${context.userChurch.jwt}&churchId=${context.userChurch.church.id}&returnUrl=/`,
         label: "Admin"
       });
     }

@@ -48,3 +48,27 @@ yarn-error.log*
 # Sentry Config File
 .env.sentry-build-plugin
 Notes.md
+
+# VPS Deployment - Sensitive Files (DO NOT COMMIT)
+.env.demo
+.env.staging
+.env.production
+.env.demo*
+.env.staging*
+.env.prod*
+.env.main
+*_DEPLOYMENT*.md
+DEPLOYMENT_*.md
+VPS_*.md
+docker-compose*.yml
+nginx-configs/
+deployment-package/
+*.sh
+
+# Password files (DO NOT COMMIT)
+*.passwords.txt
+.passwords*
+
+# Backup files (DO NOT COMMIT)
+*.backup-*
+*.bak

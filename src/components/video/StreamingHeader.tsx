@@ -49,7 +49,7 @@ export const StreamingHeader: React.FC<Props> = (props) => {
       const jwt = UserHelper.currentUserChurch?.jwt;
       const churchId = UserHelper.currentUserChurch?.church?.id;
       return (
-        <li className="nav-item"><a href={`https://admin.b1.church/login?jwt=${jwt}&churchId=${churchId}&returnUrl=/`} className="nav-link" data-testid="stream-admin-link">Admin Dashboard</a></li>
+        <li className="nav-item"><a href={`https://admin.lifereformationcentre.org/login?jwt=${jwt}&churchId=${churchId}&returnUrl=/`} className="nav-link" data-testid="stream-admin-link">Admin Dashboard</a></li>
       );
     }
   };
