@@ -69,6 +69,16 @@ deployment-package/
 *.passwords.txt
 .passwords*
 
+# Data and script files (DO NOT COMMIT)
+*.mjs
+*.csv
+*.xlsx
+*.xls
+*.Identifier
+.DS_Store
+Thumbs.db
+desktop.ini
+
 # Backup files (DO NOT COMMIT)
 *.backup-*
 *.bak
