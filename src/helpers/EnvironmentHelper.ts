@@ -36,6 +36,7 @@ export class EnvironmentHelper {
     EnvironmentHelper.Common.ContentRoot = process.env.NEXT_PUBLIC_CONTENT_ROOT || EnvironmentHelper.Common.ContentRoot;
     EnvironmentHelper.Common.MessagingApiSocket = process.env.NEXT_PUBLIC_MESSAGING_SOCKET || EnvironmentHelper.Common.MessagingApiSocket;
     EnvironmentHelper.LessonsApi = process.env.NEXT_PUBLIC_LESSONS_API || EnvironmentHelper.LessonsApi;
+    EnvironmentHelper.Common.B1AdminRoot = process.env.NEXT_PUBLIC_CHURCH_APPS_URL || EnvironmentHelper.Common.B1AdminRoot;
 
     ApiHelper.apiConfigs = [
       { keyName: "MembershipApi", url: EnvironmentHelper.Common.MembershipApi, jwt: "", permissions: [] },
@@ -59,12 +60,11 @@ export class EnvironmentHelper {
 
   static initDev = () => {
     this.initStaging();
-    EnvironmentHelper.LessonsApi = process.env.REACT_APP_LESSONS_API || process.env.NEXT_PUBLIC_LESSONS_API || EnvironmentHelper.LessonsApi;
   };
 
   //NOTE: None of these values are secret.
   static initStaging = () => {
-    EnvironmentHelper.LessonsApi = "https://api.lifereformationcentre.org/lessons";
+    EnvironmentHelper.LessonsApi = "https://staging-api.lifereformationcentre.org/lessons";
     EnvironmentHelper.LessonsUrl = "https://lessons.lifereformationcentre.org";
   };
 
