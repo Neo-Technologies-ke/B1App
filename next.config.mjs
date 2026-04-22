@@ -110,6 +110,16 @@ const nextConfig = {
 
   // Rewrites for subdomain routing
   async rewrites() {
+    const defaultSubdomain = process.env.NEXT_PUBLIC_DEFAULT_SUBDOMAIN || "";
+    const portalHostPatterns = process.env.NEXT_PUBLIC_PORTAL_HOSTS
+      ? process.env.NEXT_PUBLIC_PORTAL_HOSTS.split(",").map(h => h.trim())
+      : [];
+
+    const portalRewrites = portalHostPatterns.flatMap(host => [
+      { source: "/", has: [{ type: "host", value: host }], destination: `/${defaultSubdomain}` },
+      { source: "/:path*", has: [{ type: "host", value: host }], destination: `/${defaultSubdomain}/:path*` }
+    ]);
+
     return [
       {
         source: "/",
@@ -126,6 +136,7 @@ const nextConfig = {
         has: [{ type: "host", value: "localhost" }],
         destination: "/localhost"
       },
+      ...portalRewrites,
       {
         source: "/",
         has: [{ type: "host", value: "(?<subdomain>.*?)\\..*" }],
