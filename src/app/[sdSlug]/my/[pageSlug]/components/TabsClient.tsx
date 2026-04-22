@@ -7,6 +7,7 @@ import { UserHelper } from "@churchapps/apphelper";
 import { ApiHelper } from "@churchapps/apphelper";
 import { Permissions, LinkInterface } from "@churchapps/helpers";
 import { PersonHelper } from "@/helpers";
+import { EnvironmentHelper } from "@/helpers/EnvironmentHelper";
 import UserContext from "@/context/UserContext";
 import Link from "next/link";
 import { ConfigurationInterface } from "@/helpers/ConfigHelper";
@@ -108,7 +109,7 @@ export const TabsClient = (props: Props) => {
     // Admin tab uses permission check, not visibility
     if (showAdmin && context.userChurch?.jwt) {
       tabs.push({
-        url: `https://admin.lifereformationcentre.org/login?jwt=${context.userChurch.jwt}&churchId=${context.userChurch.church.id}&returnUrl=/`,
+        url: `${EnvironmentHelper.Common.B1AdminRoot}/login?jwt=${context.userChurch.jwt}&churchId=${context.userChurch.church.id}&returnUrl=/`,
         label: "Admin"
       });
     }

@@ -16,6 +16,7 @@ import type { LinkInterface } from "@churchapps/helpers";
 import CascadingHoverMenus from "./CascadingMenus/CascadingHoverMenus";
 import CascadingListMenu from "./CascadingMenus/CascadingListMenu";
 import { PersonHelper, SectionInterface, UrlHelper } from "@/helpers";
+import { EnvironmentHelper } from "@/helpers/EnvironmentHelper";
 import { redirect, usePathname } from "next/navigation";
 import { StyleHelper } from "@churchapps/apphelper-website";
 import { ConfigurationInterface } from "@/helpers/ConfigHelper";
@@ -91,13 +92,13 @@ export function Header(props: Props) {
 
   const memberPortal = <MenuItem onClick={() => { redirect("/my"); }} dense data-testid="member-portal-menu-item" aria-label="Go to member portal"><Icon sx={{ marginRight: "10px", fontSize: "20px !important" }}>person</Icon> Member Portal</MenuItem>;
   const adminPortal = (UserHelper.currentUserChurch && UserHelper.checkAccess(Permissions.contentApi.content.edit)) && (
-    <MenuItem onClick={() => { window.location.href = `https://admin.lifereformationcentre.org/login?jwt=${context.userChurch.jwt}&churchId=${context.userChurch.church.id}&returnUrl=/`; }} dense data-testid="admin-portal-menu-item" aria-label="Go to admin portal"><Icon sx={{ marginRight: "10px", fontSize: "20px !important" }}>settings</Icon> Admin Portal</MenuItem>
+    <MenuItem onClick={() => { window.location.href = `${EnvironmentHelper.Common.B1AdminRoot}/login?jwt=${context.userChurch.jwt}&churchId=${context.userChurch.church.id}&returnUrl=/`; }} dense data-testid="admin-portal-menu-item" aria-label="Go to admin portal"><Icon sx={{ marginRight: "10px", fontSize: "20px !important" }}>settings</Icon> Admin Portal</MenuItem>
   );
 
   const getAccountUrl = () => {
     const jwt = context.userChurch?.jwt;
     const churchId = context.userChurch?.church?.id;
-    return `https://admin.lifereformationcentre.org/login?jwt=${jwt}&churchId=${churchId}&returnUrl=/profile`;
+    return `${EnvironmentHelper.Common.B1AdminRoot}/login?jwt=${jwt}&churchId=${churchId}&returnUrl=/profile`;
   };
 
   const handleEditMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -173,7 +174,7 @@ export function Header(props: Props) {
     </ListItem>
     {UserHelper.checkAccess(Permissions.contentApi.content.edit) && (<>
       <ListItem disablePadding>
-        <ListItemButton onClick={() => { window.location.href = `https://admin.lifereformationcentre.org/login?jwt=${context.userChurch.jwt}&churchId=${context.userChurch.church.id}&returnUrl=/`; }} data-testid="admin-portal-list-item" aria-label="Go to admin portal">
+        <ListItemButton onClick={() => { window.location.href = `${EnvironmentHelper.Common.B1AdminRoot}/login?jwt=${context.userChurch.jwt}&churchId=${context.userChurch.church.id}&returnUrl=/`; }} data-testid="admin-portal-list-item" aria-label="Go to admin portal">
           <ListItemIcon><Icon color="secondary">settings</Icon></ListItemIcon>
           <ListItemText primary="Admin Portal" />
         </ListItemButton>
