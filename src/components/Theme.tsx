@@ -41,6 +41,22 @@ export const Theme: React.FC<Props> = (props) => {
     lines.push("--app-text: " + at.textColor + ";");
   }
 
+  const appearance = props.config.appearance as any;
+  if (appearance?.brandPrimaryColor) {
+    const primary = appearance.brandPrimaryColor;
+    lines.push("--church-primary: " + primary + ";");
+    lines.push("--c1: " + primary + ";");
+    if (!props.config.appTheme?.light) {
+      lines.push("--app-primary: " + primary + ";");
+    }
+  }
+  if (appearance?.brandSecondaryColor) {
+    lines.push("--church-secondary: " + appearance.brandSecondaryColor + ";");
+  }
+  if (appearance?.brandAccentColor) {
+    lines.push("--church-accent: " + appearance.brandAccentColor + ";");
+  }
+
   if (props.config.globalStyles?.customCss) lines.push(props.config.globalStyles?.customCss);
 
   css = ":root { " + lines.join("\n") + " }";

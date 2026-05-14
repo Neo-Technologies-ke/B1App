@@ -36,12 +36,17 @@ export function AuthenticatedView(props: Props) {
   }, [props.group]);
 
   let isLeader = false;
+  let isMember = false;
   UserHelper.currentUserChurch.groups?.forEach((g) => {
-    if (g.id === group?.id && g.leader) isLeader = true;
+    if (g.id === group?.id) {
+      isMember = true;
+      if (g.leader) isLeader = true;
+    }
   });
 
   const canEditGroup = isLeader || UserHelper.checkAccess(Permissions.membershipApi.groups.edit);
   const canEditMembers = isLeader || UserHelper.checkAccess(Permissions.membershipApi.groupMembers.edit);
+  const canViewMembers = isMember || canEditMembers;
 
   const handleChange = (g: GroupInterface) => {
     setGroup(g);
@@ -63,7 +68,7 @@ export function AuthenticatedView(props: Props) {
       case "conversations": result = <ConversationsTab context={context} groupId={group.id} isLeader={isLeader} />; break;
       case "resources": result = <><h2>Resources</h2><GroupResources context={context} groupId={group.id} /></>; break;
       case "leaderResources": result = <><h2>Resources (Leaders Only)</h2><GroupLeaderResources context={context} groupId={group.id} /></>; break;
-      case "members": result = <MembersTab isLeader={isLeader} canEditMembers={canEditMembers} group={group} />; break;
+      case "members": result = canViewMembers ? <MembersTab isLeader={isLeader} canEditMembers={canEditMembers} group={group} /> : <p>You must be a member of this group to view its members.</p>; break;
       case "attendance": result = <AttendanceTab group={group} />; break;
     }
     return result;
