@@ -26,6 +26,7 @@ export function MembersTab(props: Props) {
   }, [props.group]);
 
   const loadData = () => {
+    if (!props.group?.id) return;
     setIsLoading(true);
 
     ApiHelper.get(`/groupmembers?groupId=${props.group.id}`, "MembershipApi")

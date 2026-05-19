@@ -24,7 +24,7 @@ export function GroupsMasterPanel() {
       <div className="masterList">
         {groups.length === 0 && <div style={{ padding: 20, color: "#666" }}>No groups found.</div>}
         {groups.map((group) => (
-          <Link key={group.id} href={"/groups/details/" + group.slug} className="groupItem" data-testid={`group-item-${group.slug}`}>
+          <Link key={group.id} href={"/groups/details/" + (group.slug || group.id)} className="groupItem" data-testid={`group-item-${group.slug || group.id}`}>
             <img
               className="groupThumb"
               src={group.photoUrl || "/images/group.jpg"}
