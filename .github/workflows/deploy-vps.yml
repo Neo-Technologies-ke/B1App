@@ -29,7 +29,7 @@ jobs:
             -o UserKnownHostsFile=/dev/null \
             -o LogLevel=ERROR \
             ${VPS_USER}@${VPS_HOST} \
-            'git -C /home/trix/churchapps/B1App pull origin vps_setup && cd /home/trix/churchapps && docker compose -f docker-compose.3env.yml build --no-cache staging-b1app && docker compose -f docker-compose.3env.yml up -d --force-recreate staging-b1app'
+            'git -C /home/trix/churchapps/B1App reset --hard HEAD && git -C /home/trix/churchapps/B1App clean -fd && git -C /home/trix/churchapps/B1App pull origin vps_setup && cd /home/trix/churchapps && docker compose -f docker-compose.3env.yml build --no-cache staging-b1app && docker compose -f docker-compose.3env.yml up -d --force-recreate staging-b1app'
 
   deploy-prod:
     name: Deploy Production
@@ -54,4 +54,4 @@ jobs:
             -o UserKnownHostsFile=/dev/null \
             -o LogLevel=ERROR \
             ${VPS_USER}@${VPS_HOST} \
-            'git -C /home/trix/churchapps/B1App pull origin vps_setup && cd /home/trix/churchapps && docker compose -f docker-compose.3env.yml build --no-cache prod-b1app && docker compose -f docker-compose.3env.yml up -d --force-recreate prod-b1app'
+            'git -C /home/trix/churchapps/B1App reset --hard HEAD && git -C /home/trix/churchapps/B1App clean -fd && git -C /home/trix/churchapps/B1App pull origin vps_setup && cd /home/trix/churchapps && docker compose -f docker-compose.3env.yml build --no-cache prod-b1app && docker compose -f docker-compose.3env.yml up -d --force-recreate prod-b1app'
