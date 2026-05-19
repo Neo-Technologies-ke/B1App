@@ -87,9 +87,7 @@ export const Theme: React.FC<Props> = (props) => {
   }, [googleFontsUrl]);
 
   return (<>
-    <style jsx>
-      {css}
-    </style>
+    <style dangerouslySetInnerHTML={{ __html: css }} />
     {customJs}
   </>);
 };
