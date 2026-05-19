@@ -54,8 +54,13 @@ export class EnvironmentHelper {
     let baseUrl = "https://portal.lifereformationcentre.org";
     if (typeof window !== "undefined") {
       baseUrl = window.location.origin;
+    } else {
+      const stage = process.env.NEXT_STAGE || process.env.NEXT_PUBLIC_STAGE;
+      if (stage === "staging") baseUrl = "https://staging-portal.lifereformationcentre.org";
     }
-    await Locale.init([baseUrl + `/apphelper/locales/{{lng}}.json`]);
+    try {
+      await Locale.init([baseUrl + `/apphelper/locales/{{lng}}.json`]);
+    } catch { /* locale fetch failed, continue without locale */ }
   };
 
   static initDev = () => {
