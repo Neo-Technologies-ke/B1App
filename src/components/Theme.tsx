@@ -1,11 +1,12 @@
 "use client";
 
+import type { FC } from "react";
+import { useEffect } from "react";
 import { ConfigurationInterface } from "@/helpers/ConfigHelper";
-import React from "react";
 
 interface Props { config?:ConfigurationInterface }
 
-export const Theme: React.FC<Props> = (props) => {
+export const Theme: FC<Props> = (props) => {
 
   let css = null;
   const googleFonts = [];
@@ -72,7 +73,7 @@ export const Theme: React.FC<Props> = (props) => {
   }
 
   // Use useEffect to dynamically load fonts in the browser
-  React.useEffect(() => {
+  useEffect(() => {
     if (googleFontsUrl) {
       // Check if font link already exists
       const existingLink = document.querySelector(`link[href="${googleFontsUrl}"]`);
