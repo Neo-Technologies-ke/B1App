@@ -115,10 +115,16 @@ const nextConfig = {
       ? process.env.NEXT_PUBLIC_PORTAL_HOSTS.split(",").map(h => h.trim())
       : [];
 
-    const portalRewrites = portalHostPatterns.flatMap(host => [
-      { source: "/", has: [{ type: "host", value: host }], destination: `/${defaultSubdomain}` },
-      { source: "/:path*", has: [{ type: "host", value: host }], destination: `/${defaultSubdomain}/:path*` }
-    ]);
+    const portalRewrites = defaultSubdomain
+      ? portalHostPatterns.flatMap(host => [
+          { source: "/", has: [{ type: "host", value: host }], destination: `/${defaultSubdomain}` },
+          {
+            source: `/:path((?!${defaultSubdomain}/).*)`,
+            has: [{ type: "host", value: host }],
+            destination: `/${defaultSubdomain}/:path*`
+          }
+        ])
+      : [];
 
     return [
       {
