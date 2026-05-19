@@ -18,6 +18,7 @@ if (typeof window !== "undefined") EnvironmentHelper.init();
 function ClientLayout({ children }: { children: React.ReactNode }) {
   const [errors, setErrors] = React.useState([]);
   const [localeInit, setLocaleInit] = React.useState(false);
+  const [primaryColor, setPrimaryColor] = React.useState("#1565C0");
   const location = (typeof (window) === "undefined") ? null : window.location;
 
   useEffect(() => {
@@ -26,6 +27,18 @@ function ClientLayout({ children }: { children: React.ReactNode }) {
     ErrorHelper.init(getErrorAppData, customErrorHandler);
   }, []);
 
+  useEffect(() => {
+    const readColor = () => {
+      const color = getComputedStyle(document.documentElement).getPropertyValue("--app-primary").trim();
+      if (color) setPrimaryColor(color);
+    };
+    readColor();
+    const t1 = setTimeout(readColor, 300);
+    const t2 = setTimeout(readColor, 1000);
+    const observer = new MutationObserver(readColor);
+    observer.observe(document.head, { childList: true, subtree: true });
+    return () => { clearTimeout(t1); clearTimeout(t2); observer.disconnect(); };
+  }, []);
 
   const getErrorAppData = () => {
     const result: ErrorAppDataInterface = {
@@ -46,7 +59,7 @@ function ClientLayout({ children }: { children: React.ReactNode }) {
 
 
   const mdTheme = createTheme({
-    palette: { secondary: { main: "#444444" } },
+    palette: { primary: { main: primaryColor }, secondary: { main: "#444444" } },
     components: {
       MuiTextField: {
         defaultProps: { margin: "normal" },

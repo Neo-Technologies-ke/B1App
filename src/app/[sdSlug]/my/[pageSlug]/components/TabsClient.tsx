@@ -138,8 +138,18 @@ export const TabsClient = (props: Props) => {
     </li>
   );
 
+  const logoUrl = props.config?.appearance?.logoLight || null;
+  const churchName = props.config?.church?.name || "";
+
   return (
     <>
+      {/* Desktop Sidebar Logo */}
+      <div className="sideNavLogo">
+        {logoUrl
+          ? <img src={logoUrl} alt={churchName} style={{ maxWidth: "160px", maxHeight: "60px", objectFit: "contain" }} />
+          : <span style={{ fontWeight: 600, fontSize: "1rem" }}>{churchName}</span>
+        }
+      </div>
       {/* Mobile Navigation */}
       <div className="mobileNav">
         <button
