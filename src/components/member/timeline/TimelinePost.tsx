@@ -12,6 +12,7 @@ import { UserHelper } from "@churchapps/apphelper";
 import { ApiHelper } from "@churchapps/apphelper";
 import type { GroupInterface, PersonInterface, UserContextInterface, ConversationInterface } from "@churchapps/helpers";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 interface Props {
   post:TimelinePostInterface,
@@ -23,6 +24,8 @@ interface Props {
  }
 
 export const TimelinePost: React.FC<Props> = (props) => {
+  const pathname = usePathname();
+  const sdSlug = pathname?.split("/")[1] || "";
 
   const getPostDetails = () => {
     const displayTime = DateHelper.getDisplayDuration(props.post.timeSent);
@@ -90,9 +93,10 @@ export const TimelinePost: React.FC<Props> = (props) => {
 
   const getSermonDetails = () => {
     const data = props.post.data as Record<string, string> | undefined;
+    const sermonUrl = `/${sdSlug}/sermons`;
     const result = (<>
-      <a href={"/sermons"} target="_blank"><img src={data?.thumbnail} width="600" height="338" alt={data?.name} style={{ aspectRatio: 1.778, height: "auto" }} /></a>
-      {getIntroLine(<><b><a href={"/sermons"} target="_blank">{data?.title}</a></b></>)}
+      <a href={sermonUrl} target="_blank"><img src={data?.thumbnail} width="600" height="338" alt={data?.name} style={{ aspectRatio: 1.778, height: "auto" }} /></a>
+      {getIntroLine(<><b><a href={sermonUrl} target="_blank">{data?.title}</a></b></>)}
       <p className="understated">{data?.description}</p>
     </>);
     return result;
