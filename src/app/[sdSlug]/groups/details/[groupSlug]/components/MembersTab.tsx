@@ -21,18 +21,17 @@ export function MembersTab(props: Props) {
   const [groupMembers, setGroupMembers] = useState<GroupMemberInterface[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    loadData();
-  }, [props.group]);
-
-  const loadData = () => {
+  const loadData = React.useCallback(() => {
     if (!props.group?.id) return;
     setIsLoading(true);
-
     ApiHelper.get(`/groupmembers?groupId=${props.group.id}`, "MembershipApi")
       .then((data: GroupMemberInterface[]) => setGroupMembers(data))
       .finally(() => setIsLoading(false));
-  };
+  }, [props.group?.id]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   const getTable = () => {
     if (isLoading) return <Loading />;

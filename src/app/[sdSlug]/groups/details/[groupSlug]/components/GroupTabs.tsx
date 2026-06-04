@@ -32,7 +32,8 @@ export const GroupTabs = (props: Props) => {
   }, [props.group]);
 
   let isLeader = false;
-  UserHelper.currentUserChurch.groups?.forEach((g) => {
+  const userGroups = context?.userChurch?.groups || UserHelper.currentUserChurch?.groups;
+  userGroups?.forEach((g) => {
     if (g.id === group?.id && g.leader) isLeader = true;
   });
 

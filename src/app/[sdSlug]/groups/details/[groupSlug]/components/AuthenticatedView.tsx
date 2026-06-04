@@ -35,14 +35,22 @@ export function AuthenticatedView(props: Props) {
     setGroup(props.group);
   }, [props.group]);
 
-  let isLeader = false;
-  let isMember = false;
-  UserHelper.currentUserChurch.groups?.forEach((g) => {
-    if (g.id === group?.id) {
-      isMember = true;
-      if (g.leader) isLeader = true;
-    }
-  });
+  const [isLeader, setIsLeader] = useState(false);
+  const [isMember, setIsMember] = useState(false);
+
+  useEffect(() => {
+    let leader = false;
+    let member = false;
+    const groups = context?.userChurch?.groups || UserHelper.currentUserChurch?.groups;
+    groups?.forEach((g) => {
+      if (g.id === group?.id) {
+        member = true;
+        if (g.leader) leader = true;
+      }
+    });
+    setIsLeader(leader);
+    setIsMember(member);
+  }, [context?.userChurch, group?.id]);
 
   const canEditGroup = isLeader || UserHelper.checkAccess(Permissions.membershipApi.groups.edit);
   const canEditMembers = isLeader || UserHelper.checkAccess(Permissions.membershipApi.groupMembers.edit);
