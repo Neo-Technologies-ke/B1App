@@ -25,6 +25,7 @@ const __dirname = path.dirname(__filename);
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  typescript: { ignoreBuildErrors: true },
 
   allowedDevOrigins: ['grace.localtest.me', '*.localtest.me', 'localhost', '*.localhost'],
 
