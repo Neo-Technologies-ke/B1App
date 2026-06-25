@@ -3,7 +3,6 @@
 import { useState, useEffect, useContext } from "react";
 import { Grid, Container } from "@mui/material";
 import { UserHelper } from "@churchapps/apphelper";
-import { MarkdownPreviewLight } from "@churchapps/apphelper-markdown";
 import { DisplayBox } from "@churchapps/apphelper";
 import type { GroupInterface } from "@churchapps/helpers";
 import { Permissions } from "@churchapps/helpers";
@@ -68,7 +67,7 @@ export function AuthenticatedView(props: Props) {
           {canEditGroup && <LeaderEdit group={group} config={props.config} onChange={handleChange} updatedFunction={handleChange} />}
           <h2>Details</h2>
           <div style={{ paddingTop: "1rem", paddingBottom: "3rem" }}>
-            <MarkdownPreviewLight value={group.about} />
+            <div style={{whiteSpace: "pre-wrap"}}>{group.about}</div>
           </div>
         </>;
         break;
