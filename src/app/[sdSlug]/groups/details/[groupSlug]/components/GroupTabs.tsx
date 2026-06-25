@@ -1,0 +1,73 @@
+"use client";
+
+import React, { useEffect, useState } from "react";
+
+import { PersonHelper } from "@/helpers";
+import UserContext from "@/context/UserContext";
+import { ConfigurationInterface } from "@/helpers/ConfigHelper";
+import { UserHelper } from "@churchapps/apphelper";
+import type { GroupInterface } from "@churchapps/helpers";
+import { Permissions } from "@churchapps/helpers";
+
+interface TabItem {
+  key: string;
+  label: string;
+}
+
+interface Props {
+  config: ConfigurationInterface;
+  onTabChange: (tab: string) => void;
+  group: GroupInterface;
+}
+
+export const GroupTabs = (props: Props) => {
+  const context = React.useContext(UserContext);
+  PersonHelper.person = context.person;
+  const tabs: TabItem[] = [];
+
+  const [group, setGroup] = useState(props.group);
+
+  useEffect(() => {
+    setGroup(props.group);
+  }, [props.group]);
+
+  let isLeader = false;
+  const userGroups = context?.userChurch?.groups || UserHelper.currentUserChurch?.groups;
+  userGroups?.forEach((g) => {
+    if (g.id === group?.id && g.leader) isLeader = true;
+  });
+
+  const canEditGroup = isLeader || UserHelper.checkAccess(Permissions.membershipApi.groups.edit);
+  const canViewLeaderResources = isLeader || UserHelper.checkAccess(Permissions.membershipApi.groups.edit);
+
+
+  const getTabs = () => {
+    const memberStatus = context.userChurch?.person?.membershipStatus?.toLowerCase();
+
+
+    tabs.push({ key: "details", label: "Group Details" });
+    tabs.push({ key: "members", label: "Members" });
+    if (canEditGroup) {
+      tabs.push({ key: "attendance", label: "Attendance" });
+    }
+    tabs.push({ key: "calendar", label: "Calendar" });
+    tabs.push({ key: "conversations", label: "Conversations" });
+    tabs.push({ key: "resources", label: "Resources" });
+    if (canViewLeaderResources) {
+      tabs.push({ key: "leaderResources", label: "Resources (Leaders)" });
+    }
+
+    return tabs;
+  };
+
+
+
+  const getItem = (tab: TabItem) =>
+    (<li key={tab.key}><a href="about:blank" data-testid={`group-tab-${tab.key}-link`} onClick={(e) => { e.preventDefault(); props.onTabChange(tab.key); }}>{tab.label}</a></li>);
+
+  return <ul>
+    {getTabs().map((tab, index) => getItem(tab))}
+  </ul>;
+
+
+};

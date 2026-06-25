@@ -1,0 +1,61 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches:
+      - vps_setup
+  workflow_dispatch:
+
+jobs:
+  deploy-staging:
+    name: Deploy Staging
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup SSH
+        env:
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$VPS_SSH_KEY" | base64 -d > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+
+      - name: Deploy staging-b1app on VPS
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+        run: |
+          ssh -i ~/.ssh/deploy_key \
+            -o StrictHostKeyChecking=no \
+            -o UserKnownHostsFile=/dev/null \
+            -o LogLevel=ERROR \
+            -o ServerAliveInterval=60 \
+            -o ServerAliveCountMax=10 \
+            ${VPS_USER}@${VPS_HOST} \
+            'git -C /home/trix/churchapps/B1App reset --hard HEAD && git -C /home/trix/churchapps/B1App clean -fd && git -C /home/trix/churchapps/B1App pull origin vps_setup && cd /home/trix/churchapps && docker compose -f docker-compose.3env.yml build --no-cache staging-b1app && docker compose -f docker-compose.3env.yml up -d --force-recreate staging-b1app'
+
+  deploy-prod:
+    name: Deploy Production
+    runs-on: ubuntu-latest
+    needs: deploy-staging
+    steps:
+      - name: Setup SSH
+        env:
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$VPS_SSH_KEY" | base64 -d > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+
+      - name: Deploy prod-b1app on VPS
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+        run: |
+          ssh -i ~/.ssh/deploy_key \
+            -o StrictHostKeyChecking=no \
+            -o UserKnownHostsFile=/dev/null \
+            -o LogLevel=ERROR \
+            -o ServerAliveInterval=60 \
+            -o ServerAliveCountMax=10 \
+            ${VPS_USER}@${VPS_HOST} \
+            'git -C /home/trix/churchapps/B1App reset --hard HEAD && git -C /home/trix/churchapps/B1App clean -fd && git -C /home/trix/churchapps/B1App pull origin vps_setup && cd /home/trix/churchapps && docker compose -f docker-compose.3env.yml build --no-cache prod-b1app && docker compose -f docker-compose.3env.yml up -d --force-recreate prod-b1app'

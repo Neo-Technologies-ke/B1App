@@ -17,6 +17,7 @@ import type { LinkInterface } from "@churchapps/helpers";
 import CascadingHoverMenus from "./CascadingMenus/CascadingHoverMenus";
 import CascadingListMenu from "./CascadingMenus/CascadingListMenu";
 import { PersonHelper, SectionInterface, UrlHelper } from "@/helpers";
+import { EnvironmentHelper } from "@/helpers/EnvironmentHelper";
 import { redirect, usePathname } from "next/navigation";
 import { StyleHelper } from "@churchapps/apphelper/website";
 import { ConfigurationInterface } from "@/helpers/ConfigHelper";
@@ -99,7 +100,7 @@ export function Header(props: Props) {
   const getAccountUrl = () => {
     const jwt = context.userChurch?.jwt;
     const churchId = context.userChurch?.church?.id;
-    return `https://admin.b1.church/login?jwt=${jwt}&churchId=${churchId}&returnUrl=/profile`;
+    return `${EnvironmentHelper.Common.B1AdminRoot}/login?jwt=${jwt}&churchId=${churchId}&returnUrl=/profile`;
   };
 
   const handleEditMenuOpen = (event: React.MouseEvent<HTMLElement>) => {

@@ -1,5 +1,6 @@
 "use client";
 
+import React, { useEffect, type FC } from "react";
 import { ConfigurationInterface } from "@/helpers/ConfigHelper";
 import { accent as deriveAccent, isValidHex, shade, tint } from "@/helpers/colorTints";
 import React from "react";
@@ -101,6 +102,22 @@ export const Theme: React.FC<Props> = (props) => {
         if (transparent.activeColor) navRules.push(`#navbar.transparent .active { border-bottom-color: ${transparent.activeColor}; }`);
       }
     } catch { /* malformed JSON */ }
+  }
+
+  const appearance = props.config.appearance as any;
+  if (appearance?.brandPrimaryColor) {
+    const primary = appearance.brandPrimaryColor;
+    lines.push("--church-primary: " + primary + ";");
+    lines.push("--c1: " + primary + ";");
+    if (!props.config.appTheme?.light) {
+      lines.push("--app-primary: " + primary + ";");
+    }
+  }
+  if (appearance?.brandSecondaryColor) {
+    lines.push("--church-secondary: " + appearance.brandSecondaryColor + ";");
+  }
+  if (appearance?.brandAccentColor) {
+    lines.push("--church-accent: " + appearance.brandAccentColor + ";");
   }
 
   if (props.config.globalStyles?.customCss) lines.push(props.config.globalStyles?.customCss);

@@ -184,6 +184,7 @@ const nextConfig = {
         has: [{ type: "host", value: "localhost" }],
         destination: "/localhost"
       },
+      ...portalRewrites,
       {
         source: "/",
         has: [{ type: "host", value: "(?<subdomain>.*?)\\..*" }],
