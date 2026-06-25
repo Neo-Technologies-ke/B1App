@@ -7,7 +7,6 @@ import { DisplayBox } from "@churchapps/apphelper";
 import type { GroupInterface } from "@churchapps/helpers";
 import { Permissions } from "@churchapps/helpers";
 import UserContext from "@/context/UserContext";
-import { GroupCalendar } from "@/components/eventCalendar/GroupCalendar";
 import { GroupResources } from "@/components/groups/GroupResources";
 import { GroupLeaderResources } from "@/components/groups/GroupLeaderResources";
 import { ConfigurationInterface } from "@/helpers/ConfigHelper";
@@ -71,7 +70,6 @@ export function AuthenticatedView(props: Props) {
           </div>
         </>;
         break;
-      case "calendar": result = <><h2>Calendar</h2><DisplayBox headerText="Group Calendar"><GroupCalendar groupId={group.id} churchId={props.config.church.id} canEdit={canEditGroup} /></DisplayBox></>; break;
       case "conversations": result = <ConversationsTab context={context} groupId={group.id} isLeader={isLeader} />; break;
       case "resources": result = <><h2>Resources</h2><GroupResources context={context} groupId={group.id} /></>; break;
       case "leaderResources": result = <><h2>Resources (Leaders Only)</h2><GroupLeaderResources context={context} groupId={group.id} /></>; break;
