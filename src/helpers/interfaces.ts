@@ -113,6 +113,7 @@ export interface FileInterface {
   size?: number;
   contentType?: string;
   fileUrl?: string;
+  contentPath?: string;
   dateModified?: Date;
 }
 
