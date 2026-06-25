@@ -3,7 +3,6 @@
 import React, { useEffect, type FC } from "react";
 import { ConfigurationInterface } from "@/helpers/ConfigHelper";
 import { accent as deriveAccent, isValidHex, shade, tint } from "@/helpers/colorTints";
-import React from "react";
 
 interface Props { config?:ConfigurationInterface }
 
