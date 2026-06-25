@@ -307,3 +307,29 @@ export interface MyPledgeInterface {
   givenAmount?: number;
   status?: PledgeStatus;
 }
+
+export interface TimelineMessageInterface {
+  personId: string;
+  displayName: string;
+  message: string;
+  timeSent: Date;
+}
+
+export interface TimelineConversationInterface {
+  conversationId: string;
+  postCount: number;
+  firstPost: TimelineMessageInterface;
+  lastPost: TimelineMessageInterface;
+}
+
+export interface TimelinePostInterface {
+  postType: string;
+  postId: string;
+  posterId?: string;
+  posterName?: string;
+  message?: string;
+  conversationId?: string;
+  timeSent?: Date;
+  timeUpdated?: Date;
+  conversation: TimelineConversationInterface;
+}
