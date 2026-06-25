@@ -7,9 +7,9 @@ RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 # Copy package files and scripts for postinstall
-COPY package.json package-lock.json ./
+COPY package.json yarn.lock .yarnrc.yml ./
 COPY scripts ./scripts
-RUN npm ci
+RUN corepack enable && yarn install --immutable
 
 # Rebuild the source code only when needed
 FROM base AS builder
@@ -31,7 +31,7 @@ RUN if [ "$BUILD_ENV" = "demo" ]; then \
     fi
 
 # Build Next.js application
-RUN npm run build
+RUN corepack enable && yarn build
 
 # Production image, copy all the files and run next
 FROM base AS runner
