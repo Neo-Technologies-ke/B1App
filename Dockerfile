@@ -14,12 +14,13 @@ RUN corepack enable && yarn install --immutable
 # Rebuild the source code only when needed
 FROM base AS builder
 WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
-COPY . .
 
-# Build arguments for environment-specific builds
+# Build arguments must be declared before use
 ARG BUILD_ENV=production
 ENV NODE_ENV=production
+
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
 
 # Copy the appropriate environment file
 RUN if [ "$BUILD_ENV" = "demo" ]; then \
