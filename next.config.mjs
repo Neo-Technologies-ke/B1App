@@ -26,6 +26,7 @@ const __dirname = path.dirname(__filename);
 const nextConfig = {
   reactStrictMode: true,
   typescript: { ignoreBuildErrors: true },
+  output: 'standalone',
 
   allowedDevOrigins: ['grace.localtest.me', '*.localtest.me', 'localhost', '*.localhost'],
 
