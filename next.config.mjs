@@ -167,6 +167,22 @@ const nextConfig = {
       }
     ];
 
+    const defaultSubdomain = process.env.NEXT_PUBLIC_DEFAULT_SUBDOMAIN || "";
+    const portalHostPatterns = process.env.NEXT_PUBLIC_PORTAL_HOSTS
+      ? process.env.NEXT_PUBLIC_PORTAL_HOSTS.split(",").map(h => h.trim())
+      : [];
+
+    const portalRewrites = defaultSubdomain
+      ? portalHostPatterns.flatMap(host => [
+          { source: "/", has: [{ type: "host", value: host }], destination: `/${defaultSubdomain}` },
+          {
+            source: `/:path((?!${defaultSubdomain}/).*)`,
+            has: [{ type: "host", value: host }],
+            destination: `/${defaultSubdomain}/:path*`
+          }
+        ])
+      : [];
+
     return [
       ...railwayRules,
       {
