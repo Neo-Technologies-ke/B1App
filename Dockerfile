@@ -22,6 +22,9 @@ ENV NODE_ENV=production
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
+# Run postinstall to copy vendor CSS/locales into src/styles/vendor and public/
+RUN corepack enable && YARN_ENABLE_SCRIPTS=true yarn postinstall
+
 # Copy the appropriate environment file
 RUN if [ "$BUILD_ENV" = "demo" ]; then \
       cp .env.demo .env.production.local; \
