@@ -5,11 +5,18 @@ import { useRouter, useSearchParams } from "next/navigation";
 import {
   Box,
   Button,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   Icon,
   IconButton,
+  InputAdornment,
   Skeleton,
   Tab,
   Tabs,
+  TextField,
   Typography
 } from "@mui/material";
 import { ApiHelper, Locale, PersonHelper, UserHelper } from "@churchapps/apphelper";
@@ -55,7 +62,7 @@ interface GroupWithExtras extends GroupInterface {
   meetingLocation?: string;
 }
 
-type TabKey = "about" | "messages" | "members" | "attendance" | "events" | "resources" | "plans";
+type TabKey = "about" | "messages" | "members" | "attendance" | "events" | "resources" | "plans" | "edit";
 
 const looksLikeId = (value: string) => /^[A-Za-z0-9_]+$/.test(value) && !value.includes("-");
 
@@ -82,6 +89,15 @@ const AuthenticatedGroupDetail = ({ idOrSlug, config }: { idOrSlug: string; conf
   const [joining, setJoining] = React.useState(false);
   const [requestDialogOpen, setRequestDialogOpen] = React.useState(false);
   const [tab, setTab] = React.useState<TabKey>("about");
+  const [memberSearch, setMemberSearch] = React.useState("");
+  const [editName, setEditName] = React.useState("");
+  const [editAbout, setEditAbout] = React.useState("");
+  const [editMeetingTime, setEditMeetingTime] = React.useState("");
+  const [editMeetingLocation, setEditMeetingLocation] = React.useState("");
+  const [editPhotoUrl, setEditPhotoUrl] = React.useState("");
+  const [saving, setSaving] = React.useState(false);
+  const [photoDialogOpen, setPhotoDialogOpen] = React.useState(false);
+  const [photoUrlInput, setPhotoUrlInput] = React.useState("");
   const [chatOpen, setChatOpen] = React.useState(false);
   const [chatInitialTab, setChatInitialTab] = React.useState<ChatSubTab>("discussions");
   const [createEvent, setCreateEvent] = React.useState<string | null>(null);
@@ -439,76 +455,272 @@ const AuthenticatedGroupDetail = ({ idOrSlug, config }: { idOrSlug: string; conf
     );
   };
 
-  const renderMembersTab = () => (
-    <Box
-      sx={{
-        bgcolor: tc.surface,
-        borderRadius: `${mobileTheme.radius.lg}px`,
-        boxShadow: mobileTheme.shadows.sm,
-        p: `${mobileTheme.spacing.md}px`
-      }}
-    >
-      <Typography sx={{ fontSize: 18, fontWeight: 600, color: tc.text, mb: `${mobileTheme.spacing.sm}px` }}>
-        {Locale.label("mobile.details.members").replace("{}", String(members?.length ?? 0))}
-      </Typography>
-      {members === null &&
-        [0, 1, 2].map((k) => (
-          <Box
-            key={`msk-${k}`}
-            sx={{ display: "flex", alignItems: "center", gap: `${mobileTheme.spacing.md}px`, py: "4px", height: 48 }}
-          >
-            <Skeleton variant="circular" width={40} height={40} />
-            <Skeleton variant="text" width="50%" height={18} />
-          </Box>
-        ))}
-      {members !== null && members.length === 0 && (
-        <Typography sx={{ fontSize: 14, color: tc.textMuted }}>{Locale.label("mobile.details.noMembersYet")}</Typography>
-      )}
-      {members !== null &&
-        members.map((m) => (
-          <Box
-            key={m.id}
-            role="button"
-            tabIndex={0}
-            onClick={() => handleMemberClick(m)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                handleMemberClick(m);
-              }
-            }}
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              gap: `${mobileTheme.spacing.md}px`,
-              height: 48,
-              px: "4px",
-              borderRadius: `${mobileTheme.radius.md}px`,
-              cursor: "pointer",
-              "&:hover": { bgcolor: tc.iconBackground }
-            }}
-          >
-            {renderMemberAvatar(m)}
-            <Box sx={{ flex: 1, minWidth: 0 }}>
-              <Typography
-                sx={{
-                  fontSize: 14,
-                  fontWeight: 600,
-                  color: tc.text,
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap"
-                }}
-              >
-                {m.person?.name?.display || Locale.label("mobile.components.unknown")}
-              </Typography>
-              <Typography sx={{ fontSize: 12, color: tc.textSecondary }}>
-                {m.leader ? Locale.label("mobile.details.leader") : Locale.label("mobile.details.memberLabel")}
-              </Typography>
+  const renderMembersTab = () => {
+    const filtered = memberSearch.trim()
+      ? (members ?? []).filter((m) =>
+          (m.person?.name?.display || "").toLowerCase().includes(memberSearch.trim().toLowerCase())
+        )
+      : (members ?? []);
+
+    return (
+      <Box
+        sx={{
+          bgcolor: tc.surface,
+          borderRadius: `${mobileTheme.radius.lg}px`,
+          boxShadow: mobileTheme.shadows.sm,
+          p: `${mobileTheme.spacing.md}px`
+        }}
+      >
+        <Typography sx={{ fontSize: 18, fontWeight: 600, color: tc.text, mb: `${mobileTheme.spacing.sm}px` }}>
+          {Locale.label("mobile.details.members").replace("{}", String(members?.length ?? 0))}
+        </Typography>
+        <TextField
+          fullWidth
+          size="small"
+          placeholder="Search members..."
+          value={memberSearch}
+          onChange={(e) => setMemberSearch(e.target.value)}
+          sx={{ mb: `${mobileTheme.spacing.sm}px` }}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <Icon sx={{ fontSize: 18, color: tc.textMuted }}>search</Icon>
+              </InputAdornment>
+            ),
+            endAdornment: memberSearch ? (
+              <InputAdornment position="end">
+                <IconButton size="small" onClick={() => setMemberSearch("")} aria-label="Clear search">
+                  <Icon sx={{ fontSize: 16 }}>close</Icon>
+                </IconButton>
+              </InputAdornment>
+            ) : null
+          }}
+        />
+        {members === null &&
+          [0, 1, 2].map((k) => (
+            <Box
+              key={`msk-${k}`}
+              sx={{ display: "flex", alignItems: "center", gap: `${mobileTheme.spacing.md}px`, py: "4px", height: 48 }}
+            >
+              <Skeleton variant="circular" width={40} height={40} />
+              <Skeleton variant="text" width="50%" height={18} />
             </Box>
-            <Icon sx={{ color: tc.textSecondary }}>chevron_right</Icon>
-          </Box>
-        ))}
+          ))}
+        {members !== null && filtered.length === 0 && (
+          <Typography sx={{ fontSize: 14, color: tc.textMuted, py: 1 }}>
+            {memberSearch.trim() ? "No members match your search." : Locale.label("mobile.details.noMembersYet")}
+          </Typography>
+        )}
+        {members !== null &&
+          filtered.map((m) => (
+            <Box
+              key={m.id}
+              role="button"
+              tabIndex={0}
+              onClick={() => handleMemberClick(m)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  handleMemberClick(m);
+                }
+              }}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: `${mobileTheme.spacing.md}px`,
+                height: 48,
+                px: "4px",
+                borderRadius: `${mobileTheme.radius.md}px`,
+                cursor: "pointer",
+                "&:hover": { bgcolor: tc.iconBackground }
+              }}
+            >
+              {renderMemberAvatar(m)}
+              <Box sx={{ flex: 1, minWidth: 0 }}>
+                <Typography
+                  sx={{
+                    fontSize: 14,
+                    fontWeight: 600,
+                    color: tc.text,
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap"
+                  }}
+                >
+                  {m.person?.name?.display || Locale.label("mobile.components.unknown")}
+                </Typography>
+                <Typography sx={{ fontSize: 12, color: tc.textSecondary }}>
+                  {m.leader ? Locale.label("mobile.details.leader") : Locale.label("mobile.details.memberLabel")}
+                </Typography>
+              </Box>
+              <Icon sx={{ color: tc.textSecondary }}>chevron_right</Icon>
+            </Box>
+          ))}
+      </Box>
+    );
+  };
+
+  const handleOpenEdit = () => {
+    if (!group) return;
+    setEditName(group.name || "");
+    setEditAbout((group as GroupWithExtras).about || "");
+    setEditMeetingTime((group as GroupWithExtras).meetingTime || "");
+    setEditMeetingLocation((group as GroupWithExtras).meetingLocation || "");
+    setEditPhotoUrl(group.photoUrl || "");
+  };
+
+  const handleSaveEdit = async () => {
+    if (!group) return;
+    setSaving(true);
+    try {
+      const updated = { ...group, name: editName, about: editAbout, meetingTime: editMeetingTime, meetingLocation: editMeetingLocation, photoUrl: editPhotoUrl };
+      await ApiHelper.post("/groups", [updated], "MembershipApi");
+      queryClient.invalidateQueries({ queryKey: ["group-detail", id] });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const renderEditTab = () => (
+    <Box sx={{ display: "flex", flexDirection: "column", gap: `${mobileTheme.spacing.md}px` }}>
+      <Box
+        sx={{
+          bgcolor: tc.surface,
+          borderRadius: `${mobileTheme.radius.lg}px`,
+          boxShadow: mobileTheme.shadows.sm,
+          p: `${mobileTheme.spacing.md}px`
+        }}
+      >
+        <Typography sx={{ fontSize: 18, fontWeight: 600, color: tc.text, mb: `${mobileTheme.spacing.md}px` }}>
+          Group Details
+        </Typography>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: `${mobileTheme.spacing.sm}px` }}>
+          <TextField
+            fullWidth
+            size="small"
+            label="Group Name"
+            value={editName}
+            onChange={(e) => setEditName(e.target.value)}
+          />
+          <TextField
+            fullWidth
+            size="small"
+            label="Meeting Time"
+            value={editMeetingTime}
+            onChange={(e) => setEditMeetingTime(e.target.value)}
+            placeholder="e.g. Sundays at 10am"
+          />
+          <TextField
+            fullWidth
+            size="small"
+            label="Meeting Location"
+            value={editMeetingLocation}
+            onChange={(e) => setEditMeetingLocation(e.target.value)}
+            placeholder="e.g. Main Hall"
+          />
+          <TextField
+            fullWidth
+            size="small"
+            label="Description"
+            value={editAbout}
+            onChange={(e) => setEditAbout(e.target.value)}
+            multiline
+            rows={4}
+            placeholder="Describe your group..."
+          />
+        </Box>
+      </Box>
+
+      <Box
+        sx={{
+          bgcolor: tc.surface,
+          borderRadius: `${mobileTheme.radius.lg}px`,
+          boxShadow: mobileTheme.shadows.sm,
+          p: `${mobileTheme.spacing.md}px`
+        }}
+      >
+        <Typography sx={{ fontSize: 18, fontWeight: 600, color: tc.text, mb: `${mobileTheme.spacing.md}px` }}>
+          Group Photo / Banner
+        </Typography>
+        {editPhotoUrl && (
+          <Box
+            component="img"
+            src={editPhotoUrl}
+            alt="Group banner"
+            sx={{ width: "100%", height: 160, objectFit: "cover", borderRadius: `${mobileTheme.radius.md}px`, mb: `${mobileTheme.spacing.sm}px` }}
+          />
+        )}
+        <Button
+          variant="outlined"
+          fullWidth
+          startIcon={<Icon>add_photo_alternate</Icon>}
+          onClick={() => { setPhotoUrlInput(editPhotoUrl); setPhotoDialogOpen(true); }}
+          sx={{ textTransform: "none", borderRadius: `${mobileTheme.radius.md}px` }}
+        >
+          {editPhotoUrl ? "Change Photo" : "Add Photo"}
+        </Button>
+        {editPhotoUrl && (
+          <Button
+            variant="text"
+            color="error"
+            fullWidth
+            onClick={() => setEditPhotoUrl("")}
+            sx={{ textTransform: "none", mt: 1 }}
+          >
+            Remove Photo
+          </Button>
+        )}
+      </Box>
+
+      <Button
+        variant="contained"
+        fullWidth
+        disabled={saving}
+        onClick={handleSaveEdit}
+        sx={{
+          bgcolor: tc.primary,
+          color: tc.onPrimary,
+          textTransform: "none",
+          fontWeight: 600,
+          borderRadius: `${mobileTheme.radius.md}px`,
+          py: "12px"
+        }}
+      >
+        {saving ? <CircularProgress size={20} sx={{ color: tc.onPrimary }} /> : "Save Changes"}
+      </Button>
+
+      <Dialog open={photoDialogOpen} onClose={() => setPhotoDialogOpen(false)} fullWidth maxWidth="sm">
+        <DialogTitle>Enter Photo URL</DialogTitle>
+        <DialogContent>
+          <TextField
+            fullWidth
+            label="Photo URL"
+            value={photoUrlInput}
+            onChange={(e) => setPhotoUrlInput(e.target.value)}
+            placeholder="https://example.com/photo.jpg"
+            sx={{ mt: 1 }}
+          />
+          {photoUrlInput && (
+            <Box
+              component="img"
+              src={photoUrlInput}
+              alt="Preview"
+              onError={(e: any) => { e.target.style.display = "none"; }}
+              sx={{ width: "100%", height: 120, objectFit: "cover", borderRadius: `${mobileTheme.radius.md}px`, mt: 2 }}
+            />
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setPhotoDialogOpen(false)} sx={{ textTransform: "none" }}>Cancel</Button>
+          <Button
+            variant="contained"
+            onClick={() => { setEditPhotoUrl(photoUrlInput); setPhotoDialogOpen(false); }}
+            sx={{ textTransform: "none", bgcolor: tc.primary, color: tc.onPrimary }}
+          >
+            Apply
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 
@@ -644,16 +856,18 @@ const AuthenticatedGroupDetail = ({ idOrSlug, config }: { idOrSlug: string; conf
 
   const hasAbout = !!group?.about;
   const availableTabs: { key: TabKey; label: string; icon: string }[] = [];
-  if (hasAbout) availableTabs.push({ key: "about", label: Locale.label("mobile.details.tabAbout"), icon: "info" });
+  if (hasAbout || canManageGroup) availableTabs.push({ key: "about", label: Locale.label("mobile.details.tabAbout"), icon: "info" });
   if (hasPlans) availableTabs.push({ key: "plans", label: Locale.label("groupsPage.plans"), icon: "event_note" });
   if (isMember) availableTabs.push({ key: "messages", label: Locale.label("mobile.details.tabMessages"), icon: "forum" });
   availableTabs.push({ key: "members", label: Locale.label("mobile.details.membersTab"), icon: "group" });
   if (canManageGroup) availableTabs.push({ key: "attendance", label: Locale.label("mobile.details.tabAttendance"), icon: "fact_check" });
   availableTabs.push({ key: "events", label: Locale.label("mobile.details.tabEvents"), icon: "event" });
   availableTabs.push({ key: "resources", label: Locale.label("mobile.details.tabResources"), icon: "folder" });
+  if (canManageGroup) availableTabs.push({ key: "edit", label: "Edit Group", icon: "edit" });
 
   React.useEffect(() => {
     if (!group) return;
+    if (tab === "edit") { handleOpenEdit(); return; }
     if (!availableTabs.some((t) => t.key === tab)) {
       setTab(availableTabs[0].key);
     }
@@ -684,6 +898,7 @@ const AuthenticatedGroupDetail = ({ idOrSlug, config }: { idOrSlug: string; conf
                   setChatOpen(true);
                   return;
                 }
+                if (v === "edit" && group) { handleOpenEdit(); }
                 setTab(v);
               }}
               variant="scrollable"
@@ -723,6 +938,7 @@ const AuthenticatedGroupDetail = ({ idOrSlug, config }: { idOrSlug: string; conf
           </Box>
 
           {tab === "about" && renderAbout()}
+          {tab === "edit" && renderEditTab()}
           {tab === "members" && renderMembersTab()}
           {tab === "events" && groupId && (
             <GroupCalendarTab
