@@ -55,6 +55,7 @@ export function LoginClient({ showLogo, redirectAfterLogin, loginContainerCssPro
         context={context}
         jwt={jwt}
         appName="B1"
+        appUrl={typeof window !== "undefined" ? window.location.origin : undefined}
         showLogo={showLogo}
         loginContainerCssProps={loginContainerCssProps as any}
         keyName={keyName}
