@@ -94,7 +94,7 @@ export function Header(props: Props) {
 
   const memberPortal = <MenuItem onClick={() => { redirect("/mobile"); }} dense data-testid="member-portal-menu-item" aria-label={Locale.label("header.goMemberPortal")}><Icon sx={{ marginRight: "10px", fontSize: "20px !important" }}>person</Icon> {Locale.label("header.memberPortal")}</MenuItem>;
   const adminPortal = (UserHelper.currentUserChurch && UserHelper.checkAccess(Permissions.contentApi.content.edit)) && (
-    <MenuItem onClick={() => { window.location.href = `https://admin.b1.church/login?jwt=${context.userChurch.jwt}&churchId=${context.userChurch.church.id}&returnUrl=/`; }} dense data-testid="admin-portal-menu-item" aria-label={Locale.label("header.goAdminPortal")}><Icon sx={{ marginRight: "10px", fontSize: "20px !important" }}>settings</Icon> {Locale.label("header.adminPortal")}</MenuItem>
+    <MenuItem onClick={() => { window.location.href = `${EnvironmentHelper.Common.B1AdminRoot}/login?jwt=${context.userChurch.jwt}&churchId=${context.userChurch.church.id}&returnUrl=/`; }} dense data-testid="admin-portal-menu-item" aria-label={Locale.label("header.goAdminPortal")}><Icon sx={{ marginRight: "10px", fontSize: "20px !important" }}>settings</Icon> {Locale.label("header.adminPortal")}</MenuItem>
   );
 
   const getAccountUrl = () => {
