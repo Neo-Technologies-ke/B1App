@@ -33,6 +33,16 @@ export class EnvironmentHelper {
     }
     EnvironmentHelper.Common.init(stage);
 
+    if (process.env.NEXT_PUBLIC_MEMBERSHIP_API) EnvironmentHelper.Common.MembershipApi = process.env.NEXT_PUBLIC_MEMBERSHIP_API;
+    if (process.env.NEXT_PUBLIC_ATTENDANCE_API) EnvironmentHelper.Common.AttendanceApi = process.env.NEXT_PUBLIC_ATTENDANCE_API;
+    if (process.env.NEXT_PUBLIC_GIVING_API) EnvironmentHelper.Common.GivingApi = process.env.NEXT_PUBLIC_GIVING_API;
+    if (process.env.NEXT_PUBLIC_MESSAGING_API) EnvironmentHelper.Common.MessagingApi = process.env.NEXT_PUBLIC_MESSAGING_API;
+    if (process.env.NEXT_PUBLIC_CONTENT_API) EnvironmentHelper.Common.ContentApi = process.env.NEXT_PUBLIC_CONTENT_API;
+    if (process.env.NEXT_PUBLIC_DOING_API) EnvironmentHelper.Common.DoingApi = process.env.NEXT_PUBLIC_DOING_API;
+    if (process.env.NEXT_PUBLIC_REPORTING_API) EnvironmentHelper.Common.ReportingApi = process.env.NEXT_PUBLIC_REPORTING_API;
+    if (process.env.NEXT_PUBLIC_CONTENT_ROOT) EnvironmentHelper.Common.ContentRoot = process.env.NEXT_PUBLIC_CONTENT_ROOT;
+    if (process.env.NEXT_PUBLIC_MESSAGING_SOCKET) EnvironmentHelper.Common.MessagingApiSocket = process.env.NEXT_PUBLIC_MESSAGING_SOCKET;
+
     ApiHelper.apiConfigs = [
       { keyName: "MembershipApi", url: EnvironmentHelper.Common.MembershipApi, jwt: "", permissions: [] },
       { keyName: "AttendanceApi", url: EnvironmentHelper.Common.AttendanceApi, jwt: "", permissions: [] },
