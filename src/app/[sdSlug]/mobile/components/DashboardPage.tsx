@@ -55,6 +55,7 @@ export const DashboardPage = ({ config }: Props) => {
   const navigate = (link: LinkInterface) => {
     incrementViewCount(generateLinkId(link));
     const route = linkTypeToRoute(link.linkType, link.linkData, link.text, link.url);
+    console.log("DashboardPage navigate:", { linkType: link.linkType, route, link });
     if (!route) {
       console.log("DashboardPage: No route for link", link);
       return;
@@ -66,6 +67,7 @@ export const DashboardPage = ({ config }: Props) => {
       const target = route.startsWith("http") ? route : new URL(route, window.location.origin).toString();
       window.open(target, "_blank", "noopener,noreferrer");
     } else {
+      console.log("DashboardPage: Pushing route", route);
       router.push(route);
     }
   };
