@@ -73,6 +73,7 @@ export function ScreenRouter({ pageSlug, config }: Props) {
     case "lessons": return <LessonsPage />;
     case "profileEdit": return <ProfileEditPage config={config} />;
     case "stream": return <StreamPage config={config} />;
+    case "calendar": return <CalendarPage config={config} />;
     case "websiteUrl":
     case "page": return <WebsiteUrlPage config={config} />;
     case "login": return <MobileLoginScreen config={config} />;
