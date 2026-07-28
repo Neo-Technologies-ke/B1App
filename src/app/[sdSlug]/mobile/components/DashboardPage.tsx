@@ -55,7 +55,10 @@ export const DashboardPage = ({ config }: Props) => {
   const navigate = (link: LinkInterface) => {
     incrementViewCount(generateLinkId(link));
     const route = linkTypeToRoute(link.linkType, link.linkData, link.text, link.url);
-    if (!route) return;
+    if (!route) {
+      console.log("DashboardPage: No route for link", link);
+      return;
+    }
     // Custom "url" links always open externally (new window) so iOS standalone
     // PWAs give the user a close button. Relative paths are resolved against the
     // origin first; otherwise they'd navigate in-place out of the mobile shell.

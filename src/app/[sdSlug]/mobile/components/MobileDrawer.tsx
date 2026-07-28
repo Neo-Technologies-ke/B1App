@@ -148,7 +148,10 @@ export const MobileDrawer = ({ links, onNavigate }: Props) => {
             return <Divider key={`sep-${idx}`} sx={{ my: 1 }} />;
           }
           const route = linkTypeToRoute(link.linkType, link.linkData, link.text, link.url);
-          if (!route) return null;
+          if (!route) {
+            console.log("MobileDrawer: No route for link", link);
+            return null;
+          }
           const isExternal = link.linkType === "url" || route.startsWith("http");
           const active = !isExternal && isActive(route);
           const iconName = linkTypeToIcon(link.linkType, link.icon);
