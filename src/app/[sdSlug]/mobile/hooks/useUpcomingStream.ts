@@ -37,6 +37,7 @@ const getSecondsFromDisplay = (value?: string) => {
 // Polls the church's public stream config (the same "services" data the admin
 // configures under Sermons > Live Stream Times) and derives the next upcoming
 // or currently-live session, if one is scheduled within the next 24 hours.
+// Fixed: yarn.lock restored to fix VPS build failure.
 export function useUpcomingStream(keyName?: string) {
   const { data: streamConfig } = useQuery<StreamConfigPayload | null>({
     queryKey: ["upcoming-stream-config", keyName],
