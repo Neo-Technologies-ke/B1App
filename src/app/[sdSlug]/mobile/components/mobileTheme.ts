@@ -75,6 +75,7 @@ export const SCREEN_TITLES: Record<string, string> = new Proxy({} as Record<stri
       messagesNew: Locale.label("mobile.screenTitles.newMessage"),
       composeMessage: Locale.label("mobile.screenTitles.newMessage"),
       registrations: Locale.label("mobile.screenTitles.registrations"),
+      calendar: Locale.label("mobile.screenTitles.calendar"),
       register: Locale.label("mobile.screenTitles.register"),
       volunteerBrowse: Locale.label("mobile.screenTitles.volunteerOpportunities"),
       volunteer: Locale.label("mobile.screenTitles.volunteer"),
@@ -111,6 +112,7 @@ export const linkTypeToImage = (linkType?: string, text?: string): string => {
     case "donation": return "/mobile/images/dash_donation.png";
     case "directory": return "/mobile/images/dash_directory.png";
     case "plans": return "/mobile/images/dash_votd.png";
+    case "calendar": return "/mobile/images/dash_votd.png";
     default: return "/mobile/images/dash_url.png";
   }
 };
@@ -134,6 +136,7 @@ export const linkTypeToRoute = (
     case "sermons": return "/mobile/sermons";
     case "stream": return "/mobile/stream";
     case "registrations": return "/mobile/registrations";
+    case "calendar": return "/mobile/calendar";
     case "page": {
       const id = url || linkData || "";
       const params = new URLSearchParams();
@@ -166,6 +169,7 @@ export const linkTypeToIcon = (linkType?: string, itemIcon?: string): string => 
     case "sermons": return "play_circle";
     case "stream": return "live_tv";
     case "url": return "public";
+    case "calendar": return "calendar_month";
     default: return "apps";
   }
 };
@@ -187,6 +191,7 @@ export const linkTypeToTagline = (linkType?: string): string | null => {
     case "sermons": return Locale.label("mobile.taglines.sermons");
     case "stream": return Locale.label("mobile.taglines.stream");
     case "registrations": return Locale.label("mobile.taglines.registrations");
+    case "calendar": return Locale.label("mobile.taglines.calendar");
     default: return null;
   }
 };

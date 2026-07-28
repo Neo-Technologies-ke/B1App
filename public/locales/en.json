@@ -625,6 +625,11 @@
       "dashboardMemberBody": "We're just getting set up. Check back soon for sermons, groups, and more.",
       "dashboardTitleFallback": "Your church"
     },
+    "calendarPage": {
+      "church": "Church Calendar",
+      "myEvents": "My Calendar",
+      "noEvents": "No events found"
+    },
     "group": {
       "absent": "Absent",
       "add": "Add",
@@ -766,6 +771,7 @@
     },
     "screenTitles": {
       "bible": "Bible",
+      "calendar": "Calendar",
       "checkin": "Check-in",
       "directory": "Directory",
       "donation": "Giving",
@@ -898,6 +904,7 @@
     },
     "taglines": {
       "bible": "Read scripture",
+      "calendar": "See what's happening",
       "checkin": "Check in for service",
       "directory": "Browse the directory",
       "donation": "Support the ministry",

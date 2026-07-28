@@ -29,6 +29,7 @@ const ProfileEditPage = dynamic(() => import("./screens/ProfileEditPage").then(m
 const WebsiteUrlPage = dynamic(() => import("./screens/WebsiteUrlPage").then(m => ({ default: m.WebsiteUrlPage })), { loading });
 const MessageComposePage = dynamic(() => import("./screens/MessageComposePage").then(m => ({ default: m.MessageComposePage })), { loading });
 const MobileLoginScreen = dynamic(() => import("./screens/LoginPage").then(m => ({ default: m.MobileLoginScreen })), { loading });
+const CalendarPage = dynamic(() => import("./screens/CalendarPage").then(m => ({ default: m.CalendarPage })), { loading });
 
 interface Props {
   pageSlug: string;

@@ -5,6 +5,8 @@ import { Box, Icon, Typography } from "@mui/material";
 import { ConfigurationInterface } from "@/helpers/ConfigHelper";
 import { LiveStream } from "@/components/video/LiveStream";
 import { mobileTheme } from "../mobileTheme";
+import { LiveStreamCard } from "../LiveStreamCard";
+import { useUpcomingStream } from "../../hooks/useUpcomingStream";
 
 interface Props {
   config: ConfigurationInterface;
@@ -13,8 +15,12 @@ interface Props {
 export const StreamPage = ({ config }: Props) => {
   const tc = mobileTheme.colors;
   const keyName = config?.church?.subDomain;
+  const upcomingStream = useUpcomingStream(keyName);
 
-  const offlineContent = (
+  // While a service is actually live, the LiveStream video player takes over.
+  // Once it's over (or if nothing is currently live), show the admin-configured
+  // upcoming session - if one has been scheduled - instead of a plain "offline" message.
+  const noUpcomingSession = (
     <Box sx={{
       position: "relative",
       width: "100%",
@@ -44,6 +50,10 @@ export const StreamPage = ({ config }: Props) => {
       </Box>
     </Box>
   );
+
+  const offlineContent = upcomingStream && !upcomingStream.isLive
+    ? <LiveStreamCard stream={upcomingStream} onClickLive={() => {}} />
+    : noUpcomingSession;
 
   return (
     <Box sx={{ p: `${mobileTheme.spacing.md}px`, bgcolor: tc.surface, minHeight: "100%" }}>

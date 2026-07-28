@@ -7,56 +7,17 @@ import { ApiHelper, Locale } from "@churchapps/apphelper";
 import { useQuery } from "@tanstack/react-query";
 import type { PlaylistInterface, SermonInterface } from "@churchapps/helpers";
 import { ConfigurationInterface } from "@/helpers/ConfigHelper";
-import { EnvironmentHelper } from "@/helpers/EnvironmentHelper";
 import { mobileTheme } from "../mobileTheme";
 import { formatDate as formatDateShared, formatDuration } from "../util";
 import { SermonCard } from "../SermonCard";
+import { LiveStreamCard } from "../LiveStreamCard";
+import { useUpcomingStream } from "../../hooks/useUpcomingStream";
 
 const formatDate = (date?: Date | string) => formatDateShared(date, "short");
 
 interface Props {
   config: ConfigurationInterface;
 }
-
-interface StreamService {
-  id?: string;
-  serviceTime?: string;
-  earlyStart?: string;
-  label?: string;
-  sermon?: SermonInterface;
-}
-
-interface StreamConfigPayload {
-  services?: StreamService[];
-}
-
-interface UpcomingStream {
-  startDate: Date;
-  title: string;
-  description: string;
-  isLive: boolean;
-}
-
-const formatPrettyDateTime = (date: Date) => {
-  try {
-    const d = date.toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric" });
-    const t = date.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
-    return `${d} at ${t}`;
-  } catch {
-    return date.toString();
-  }
-};
-
-const getSecondsFromDisplay = (value?: string) => {
-  if (!value) return 0;
-  try {
-    const parts = value.split(":");
-    if (parts.length < 2) return 0;
-    return parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
-  } catch {
-    return 0;
-  }
-};
 
 const FeaturedSermonHero = ({ sermon, onClick }: { sermon: SermonInterface; onClick: () => void }) => {
   const tc = mobileTheme.colors;
@@ -160,131 +121,6 @@ const FeaturedSermonHero = ({ sermon, onClick }: { sermon: SermonInterface; onCl
           <Icon sx={{ fontSize: 32, color: tc.onPrimary }}>play_arrow</Icon>
         </Box>
       </Box>
-    </Box>
-  );
-};
-
-const LiveStreamCard = ({ stream }: { stream: UpcomingStream }) => {
-  const tc = mobileTheme.colors;
-  const router = useRouter();
-  const now = new Date();
-  const diffMs = stream.startDate.getTime() - now.getTime();
-  const days = Math.max(0, Math.floor(diffMs / (1000 * 60 * 60 * 24)));
-  const hours = Math.max(0, Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)));
-  const minutes = Math.max(0, Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60)));
-  const goLive = () => router.push("/mobile/stream");
-
-  if (stream.isLive) {
-    return (
-      <Box
-        role="button"
-        tabIndex={0}
-        onClick={goLive}
-        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") goLive(); }}
-        sx={{
-          background: "linear-gradient(135deg, #D32F2F 0%, #F44336 100%)",
-          borderRadius: `${mobileTheme.radius.xl}px`,
-          p: `${mobileTheme.spacing.lg}px`,
-          mb: `${mobileTheme.spacing.lg}px`,
-          boxShadow: mobileTheme.shadows.lg,
-          textAlign: "center",
-          cursor: "pointer"
-        }}
-      >
-        <Box sx={{ display: "inline-flex", alignItems: "center", gap: 1, mb: 1.5 }}>
-          <Box sx={{
-            width: 12,
-            height: 12,
-            borderRadius: "6px",
-            bgcolor: "#FFFFFF",
-            animation: "pulse 1.4s ease-in-out infinite",
-            "@keyframes pulse": {
-              "0%, 100%": { opacity: 1 },
-              "50%": { opacity: 0.4 }
-            }
-          }} />
-          <Typography sx={{ color: "#FFFFFF", fontWeight: 800, letterSpacing: 1.5, fontSize: 14 }}>
-            LIVE NOW
-          </Typography>
-        </Box>
-        <Typography sx={{ color: "#FFFFFF", fontWeight: 700, fontSize: 20, mb: 1 }}>
-          {stream.title}
-        </Typography>
-        {stream.description && (
-          <Typography sx={{ color: "#FFFFFF", opacity: 0.9, fontSize: 14, mb: 2 }}>
-            {stream.description}
-          </Typography>
-        )}
-        <Box sx={{
-          display: "inline-flex",
-          alignItems: "center",
-          gap: 1,
-          bgcolor: "#FFFFFF",
-          color: "#D32F2F",
-          px: 2.5,
-          py: 1,
-          borderRadius: "24px",
-          fontWeight: 700
-        }}>
-          <Icon sx={{ fontSize: 20 }}>play_circle</Icon>
-          <Typography sx={{ fontSize: 14, fontWeight: 700 }}>{Locale.label("mobile.screens.watchLive")}</Typography>
-        </Box>
-      </Box>
-    );
-  }
-
-  return (
-    <Box sx={{
-      background: `linear-gradient(135deg, ${tc.primary} 0%, ${tc.secondary} 100%)`,
-      borderRadius: `${mobileTheme.radius.xl}px`,
-      p: `${mobileTheme.spacing.lg}px`,
-      mb: `${mobileTheme.spacing.lg}px`,
-      boxShadow: mobileTheme.shadows.lg,
-      textAlign: "center"
-    }}>
-      <Typography sx={{
-        color: "#FFFFFF",
-        fontWeight: 600,
-        letterSpacing: 1,
-        fontSize: 12,
-        textTransform: "uppercase",
-        mb: 2
-      }}>
-        Next Service In
-      </Typography>
-      <Box sx={{ display: "flex", alignItems: "flex-start", justifyContent: "center", gap: 3, mb: 2 }}>
-        {days > 0 && (
-          <Box sx={{ textAlign: "center" }}>
-            <Typography sx={{ color: "#FFFFFF", fontWeight: 800, fontSize: 36, lineHeight: 1 }}>{days}</Typography>
-            <Typography sx={{ color: "#FFFFFF", opacity: 0.85, fontSize: 11, fontWeight: 600, textTransform: "uppercase" }}>
-              {days === 1 ? "Day" : "Days"}
-            </Typography>
-          </Box>
-        )}
-        <Box sx={{ textAlign: "center" }}>
-          <Typography sx={{ color: "#FFFFFF", fontWeight: 800, fontSize: 36, lineHeight: 1 }}>{hours}</Typography>
-          <Typography sx={{ color: "#FFFFFF", opacity: 0.85, fontSize: 11, fontWeight: 600, textTransform: "uppercase" }}>
-            {hours === 1 ? "Hour" : "Hours"}
-          </Typography>
-        </Box>
-        <Box sx={{ textAlign: "center" }}>
-          <Typography sx={{ color: "#FFFFFF", fontWeight: 800, fontSize: 36, lineHeight: 1 }}>{minutes}</Typography>
-          <Typography sx={{ color: "#FFFFFF", opacity: 0.85, fontSize: 11, fontWeight: 600, textTransform: "uppercase" }}>
-            {minutes === 1 ? "Minute" : "Minutes"}
-          </Typography>
-        </Box>
-      </Box>
-      <Typography sx={{ color: "#FFFFFF", fontWeight: 700, fontSize: 18, mb: 0.5 }}>
-        {stream.title}
-      </Typography>
-      {stream.description && (
-        <Typography sx={{ color: "#FFFFFF", opacity: 0.9, fontSize: 14, mb: 1 }}>
-          {stream.description}
-        </Typography>
-      )}
-      <Typography sx={{ color: "#FFFFFF", opacity: 0.85, fontSize: 13 }}>
-        {formatPrettyDateTime(stream.startDate)}
-      </Typography>
     </Box>
   );
 };
@@ -530,53 +366,7 @@ export const SermonsPage = ({ config }: Props) => {
     gcTime: 30 * 60 * 1000
   });
 
-  const { data: streamConfig } = useQuery<StreamConfigPayload | null>({
-    queryKey: ["sermons-stream", keyName],
-    queryFn: async () => {
-      try {
-        const res = await fetch(`${EnvironmentHelper.Common.ContentApi}/preview/data/${keyName}`);
-        if (!res.ok) return null;
-        return (await res.json()) as StreamConfigPayload;
-      } catch {
-        return null;
-      }
-    },
-    enabled: !!keyName,
-    staleTime: 5 * 60 * 1000,
-    gcTime: 15 * 60 * 1000
-  });
-
-  const upcomingStream = useMemo<UpcomingStream | null>(() => {
-    const services = streamConfig?.services;
-    if (!services || services.length === 0) return null;
-    const now = new Date();
-    let best: { service: StreamService; start: Date; end: Date } | null = null;
-    for (const s of services) {
-      if (!s.serviceTime) continue;
-      const start = new Date(s.serviceTime);
-      if (isNaN(start.getTime())) continue;
-      const earlySeconds = getSecondsFromDisplay(s.earlyStart);
-      const liveStart = new Date(start.getTime() - earlySeconds * 1000);
-
-      const runSeconds = s.sermon?.duration || 5400;
-      const end = new Date(start.getTime() + runSeconds * 1000);
-      if (end <= now) continue;
-      if (!best || liveStart < new Date(best.start.getTime() - getSecondsFromDisplay(best.service.earlyStart) * 1000)) {
-        best = { service: s, start: liveStart, end };
-      }
-    }
-    if (!best) return null;
-    const ms = best.start.getTime() - now.getTime();
-    const isLive = ms <= 0 && now <= best.end;
-    const withinWindow = isLive || (ms > 0 && ms <= 24 * 60 * 60 * 1000);
-    if (!withinWindow) return null;
-    return {
-      startDate: best.start,
-      title: best.service.label || best.service.sermon?.title || "Live Service",
-      description: best.service.sermon?.description || "",
-      isLive
-    };
-  }, [streamConfig]);
+  const upcomingStream = useUpcomingStream(keyName);
 
   const featuredSermon = useMemo<SermonInterface | null>(() => {
     if (!sermons || sermons.length === 0) return null;
