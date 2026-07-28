@@ -78,8 +78,6 @@ export function useUpcomingStream(keyName?: string) {
     if (!best) return null;
     const ms = best.start.getTime() - now.getTime();
     const isLive = ms <= 0 && now <= best.end;
-    const withinWindow = isLive || (ms > 0 && ms <= 24 * 60 * 60 * 1000);
-    if (!withinWindow) return null;
     return {
       startDate: best.start,
       title: best.service.label || best.service.sermon?.title || "Live Service",
