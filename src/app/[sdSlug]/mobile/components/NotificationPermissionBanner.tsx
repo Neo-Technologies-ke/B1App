@@ -73,17 +73,7 @@ export const NotificationPermissionBanner = ({ enabled }: Props) => {
     primaryLabel = busy ? "Enabling..." : "Enable Notifications";
     primaryAction = busy ? null : handleEnable;
   } else if (!diagnostics.hasSubscription || (diagnostics.serverRegistrationEnabled && !diagnostics.hasConfirmedServerEnrollment)) {
-    if (installRequired) {
-      title = "Install app to finish notifications";
-      body = "This device has permission, but iPhone push notifications need the installed app experience to complete setup.";
-      primaryLabel = "Install App";
-      primaryAction = () => router.push("/mobile/install");
-    } else {
-      title = "Finish notification setup";
-      body = "Notifications are allowed, but this device still needs to register for alerts. Try again now.";
-      primaryLabel = busy ? "Retrying..." : "Retry Registration";
-      primaryAction = busy ? null : handleEnable;
-    }
+    return null;
   } else {
     return null;
   }
