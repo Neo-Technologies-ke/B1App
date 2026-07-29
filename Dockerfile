@@ -9,6 +9,7 @@ WORKDIR /app
 # Copy package files and scripts for postinstall
 COPY package.json yarn.lock .yarnrc.yml ./
 COPY scripts ./scripts
+COPY .yarn/patches ./.yarn/patches
 RUN corepack enable && yarn install --immutable
 
 # Rebuild the source code only when needed
