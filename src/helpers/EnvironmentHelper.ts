@@ -57,7 +57,7 @@ export class EnvironmentHelper {
   };
 
   static initLocale = async () => {
-    let baseUrl = "https://ironwood.staging.b1.church";
+    let baseUrl = process.env.NEXT_PUBLIC_CHURCH_APPS_URL || "https://ironwood.staging.b1.church";
     if (typeof window !== "undefined") {
       baseUrl = window.location.origin;
     } else if (process.env.NEXT_PUBLIC_STAGE === "dev" || process.env.NEXT_STAGE === "dev") {
