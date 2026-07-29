@@ -261,7 +261,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@churchapps/helpers@npm:^1.8.2":
+"@churchapps/helpers@npm:1.8.2":
   version: 1.8.2
   resolution: "@churchapps/helpers@npm:1.8.2"
   dependencies:
@@ -272,6 +272,20 @@ __metadata:
     rrule:
       optional: true
   checksum: 10c0/24066322b8a48c464e6e678f33710422bd81226f2c2acb870ef0b190f676ca493f5a7ed71eaf1e4393f0050014b00e8bb5949d1671791cbe2950667aa1cb38f3
+  languageName: node
+  linkType: hard
+
+"@churchapps/helpers@patch:@churchapps/helpers@npm%3A1.8.2#~/.yarn/patches/@churchapps-helpers-npm-1.8.2-65f9977106.patch":
+  version: 1.8.2
+  resolution: "@churchapps/helpers@patch:@churchapps/helpers@npm%3A1.8.2#~/.yarn/patches/@churchapps-helpers-npm-1.8.2-65f9977106.patch::version=1.8.2&hash=19b46b"
+  dependencies:
+    dayjs: "npm:^1.11.20"
+  peerDependencies:
+    rrule: ^2.8.1
+  peerDependenciesMeta:
+    rrule:
+      optional: true
+  checksum: 10c0/d8d93190f3fafb84018ced9921d958c9e8ead61bfabbf27e506b0ad9f478aad60ff6c1e7a85111fb11a80f64a7c27bdf3c6fc74fa1f26f793a5904e22aa8ad12
   languageName: node
   linkType: hard
 
@@ -4162,7 +4176,7 @@ __metadata:
   dependencies:
     "@churchapps/apphelper": "npm:^0.17.0"
     "@churchapps/content-providers": "npm:^0.4.1"
-    "@churchapps/helpers": "npm:^1.8.2"
+    "@churchapps/helpers": "patch:@churchapps/helpers@npm%3A1.8.2#~/.yarn/patches/@churchapps-helpers-npm-1.8.2-65f9977106.patch"
     "@emotion/react": "npm:^11.14.0"
     "@emotion/styled": "npm:^11.14.1"
     "@mui/icons-material": "npm:^7.3.11"

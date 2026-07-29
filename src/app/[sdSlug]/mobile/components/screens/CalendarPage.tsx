@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useContext, useMemo, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Box, Chip, Icon, IconButton, Skeleton, Typography } from "@mui/material";
 import { ApiHelper, Locale } from "@churchapps/apphelper";
@@ -137,6 +137,14 @@ export const CalendarPage = ({ config }: Props) => {
   }, [filteredEvents]);
 
   const selectedEvents = eventsByDate[selected] || [];
+
+  useEffect(() => {
+    const monthPrefix = `${currentMonth.getFullYear()}-${pad(currentMonth.getMonth() + 1)}`;
+    if (selected.startsWith(monthPrefix)) return;
+    const datesWithEvents = Object.keys(eventsByDate).filter((k) => k.startsWith(monthPrefix)).sort();
+    setSelected(datesWithEvents.length > 0 ? datesWithEvents[0] : `${monthPrefix}-01`);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentMonth, eventsByDate]);
 
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(currentMonth);

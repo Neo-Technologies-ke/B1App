@@ -1,0 +1,16 @@
+diff --git a/dist/EventHelper.js b/dist/EventHelper.js
+index 1c28bb067f25505e70c52ae3b595f7a370db8ee6..48847ac1b8faf0f395e3d0dd852ff39d62742a0f 100644
+--- a/dist/EventHelper.js
++++ b/dist/EventHelper.js
+@@ -36,8 +36,9 @@ export class EventHelper {
+     };
+     static getFullRRule = (event) => {
+         const RR = getRRule();
+-        const rrule = RR.fromString(event.recurrenceRule);
+-        rrule.options.dtstart = new Date(event.start);
++        const options = RR.parseString(event.recurrenceRule) || {};
++        options.dtstart = new Date(event.start);
++        const rrule = new RR(options);
+         return rrule;
+     };
+     static removeExcludeDates = (events) => {
