@@ -280,6 +280,9 @@ export const WebPushHelper = {
     if (!registration?.active) return null;
 
     try {
+      const publicKeyConfig = await getPublicKeyConfig();
+      if (!publicKeyConfig) return null; // server push isn't configured/enabled -- nothing to subscribe to.
+
       const subscription = await ensurePushSubscription(registration);
       if (!subscription) {
         if (getPermissionState() === "granted") {
@@ -289,8 +292,6 @@ export const WebPushHelper = {
       }
 
       if (!isWebPushServerEnabled()) return subscription;
-
-      const publicKeyConfig = await getPublicKeyConfig();
       await postSubscription(subscription);
       storeServerEnrollmentMetadata(subscription.endpoint, {
         publicKeyFingerprint: publicKeyConfig?.fingerprint || null,
