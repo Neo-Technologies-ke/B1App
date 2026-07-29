@@ -176,7 +176,7 @@ export function Header(props: Props) {
     </ListItem>
     {UserHelper.checkAccess(Permissions.contentApi.content.edit) && (<>
       <ListItem disablePadding>
-        <ListItemButton onClick={() => { window.location.href = `https://admin.b1.church/login?jwt=${context.userChurch.jwt}&churchId=${context.userChurch.church.id}&returnUrl=/`; }} data-testid="admin-portal-list-item" aria-label={Locale.label("header.goAdminPortal")}>
+        <ListItemButton onClick={() => { window.location.href = `${EnvironmentHelper.Common.B1AdminRoot}/login?jwt=${context.userChurch.jwt}&churchId=${context.userChurch.church.id}&returnUrl=/`; }} data-testid="admin-portal-list-item" aria-label={Locale.label("header.goAdminPortal")}>
           <ListItemIcon><Icon color="secondary">settings</Icon></ListItemIcon>
           <ListItemText primary={Locale.label("header.adminPortal")} />
         </ListItemButton>

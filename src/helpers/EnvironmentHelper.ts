@@ -42,7 +42,7 @@ export class EnvironmentHelper {
     if (process.env.NEXT_PUBLIC_REPORTING_API) EnvironmentHelper.Common.ReportingApi = process.env.NEXT_PUBLIC_REPORTING_API;
     if (process.env.NEXT_PUBLIC_CONTENT_ROOT) EnvironmentHelper.Common.ContentRoot = process.env.NEXT_PUBLIC_CONTENT_ROOT;
     if (process.env.NEXT_PUBLIC_MESSAGING_SOCKET) EnvironmentHelper.Common.MessagingApiSocket = process.env.NEXT_PUBLIC_MESSAGING_SOCKET;
-    if (process.env.NEXT_PUBLIC_B1_ADMIN_ROOT) EnvironmentHelper.Common.B1AdminRoot = process.env.NEXT_PUBLIC_B1_ADMIN_ROOT;
+    if (process.env.NEXT_PUBLIC_B1ADMIN_ROOT || process.env.NEXT_PUBLIC_B1_ADMIN_ROOT) EnvironmentHelper.Common.B1AdminRoot = process.env.NEXT_PUBLIC_B1ADMIN_ROOT || process.env.NEXT_PUBLIC_B1_ADMIN_ROOT;
 
     ApiHelper.apiConfigs = [
       { keyName: "MembershipApi", url: EnvironmentHelper.Common.MembershipApi, jwt: "", permissions: [] },
