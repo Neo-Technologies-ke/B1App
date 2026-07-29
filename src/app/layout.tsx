@@ -8,8 +8,8 @@ const roboto = Roboto({
 });
 
 export const metadata = {
-  title: "ChurchApps",
-  description: "Open Source Software for Churches"
+  title: "Life Reformation Centre",
+  description: "Life Reformation Centre Portal"
 };
 
 export const viewport = {
