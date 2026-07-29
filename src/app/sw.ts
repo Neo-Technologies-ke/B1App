@@ -21,10 +21,11 @@ declare const self: ServiceWorkerGlobalScope;
 const isApi = ({ url }: { url: URL }) =>
   /\/(MembershipApi|ContentApi|GivingApi|AttendanceApi|DoingApi|MessagingApi|ReportingApi)\//.test(url.href) ||
   /api\.(staging\.)?churchapps\.org/.test(url.hostname) ||
-  /api\.(staging\.)?b1\.church/.test(url.hostname);
+  /api\.(staging\.)?b1\.church/.test(url.hostname) ||
+  /^(staging-)?api\.lifereformationcentre\.org$/.test(url.hostname);
 
 const isAuthApi = ({ url }: { url: URL }) =>
-  isApi({ url }) && (/\/users\/login/.test(url.pathname) || /\/refresh/i.test(url.pathname));
+  isApi({ url }) && (/\/users\/login/.test(url.pathname) || /\/refresh/i.test(url.pathname) || /\/churches\/select/.test(url.pathname));
 
 const isConfigApi = ({ url }: { url: URL }) =>
   isApi({ url }) &&
@@ -40,7 +41,8 @@ const isContentApi = ({ url }: { url: URL }) =>
 
 const isChurchImage = ({ url }: { url: URL }) =>
   /content\.(staging\.)?churchapps\.org/.test(url.hostname) ||
-  /content\.lessons\.church/.test(url.hostname);
+  /content\.lessons\.church/.test(url.hostname) ||
+  (/^(staging-)?api\.lifereformationcentre\.org$/.test(url.hostname) && /^\/content\//.test(url.pathname));
 
 const mobileRuntimeCaching: RuntimeCaching[] = [
   // Never cache auth exchanges.
