@@ -249,16 +249,16 @@ export const CalendarPage = ({ config }: Props) => {
                   alignItems: "center",
                   justifyContent: "center",
                   cursor: "pointer",
-                  bgcolor: isSelected ? tc.primary : "transparent",
+                  bgcolor: isSelected ? tc.primary : hasEvents ? tc.primaryLight : "transparent",
                   color: isSelected ? tc.onPrimary : isToday ? tc.primary : tc.text,
                   fontSize: 14,
-                  fontWeight: isToday || isSelected ? 700 : 500,
-                  "&:hover": { bgcolor: isSelected ? tc.primary : tc.iconBackground }
+                  fontWeight: isToday || isSelected || hasEvents ? 700 : 500,
+                  "&:hover": { bgcolor: isSelected ? tc.primary : hasEvents ? tc.primaryLight : tc.iconBackground }
                 }}
               >
                 {d.getDate()}
                 {hasEvents && !isSelected && (
-                  <Box sx={{ position: "absolute", bottom: 3, width: 4, height: 4, borderRadius: "50%", bgcolor: tc.primary }} />
+                  <Box sx={{ position: "absolute", bottom: 3, width: 5, height: 5, borderRadius: "50%", bgcolor: tc.primary }} />
                 )}
               </Box>
             );
