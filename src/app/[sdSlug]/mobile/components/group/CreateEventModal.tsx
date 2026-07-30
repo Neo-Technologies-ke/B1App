@@ -28,7 +28,7 @@ import { MarkdownEditor } from "@churchapps/apphelper/markdown";
 
 interface Props {
   open: boolean;
-  groupId: string;
+  groupId?: string;
   initialDateIso?: string;
 
   event?: EventInterface | null;
@@ -232,7 +232,7 @@ export const CreateEventModal = ({ open, groupId, initialDateIso, event: eventPr
     const parsedCapacity = capacity.trim() ? parseInt(capacity, 10) : undefined;
     const payload: EventInterface = {
       ...(eventProp || {}),
-      groupId: eventProp?.groupId || groupId,
+      groupId: eventProp?.groupId || groupId || undefined,
       title: title.trim(),
       description: description.trim() || undefined,
       start: localToIsoString(allDay ? `${start.slice(0, 10)}T00:00` : start) as unknown as Date,

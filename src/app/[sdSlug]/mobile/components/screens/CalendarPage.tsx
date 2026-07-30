@@ -1,16 +1,17 @@
 "use client";
 
 import React, { useContext, useEffect, useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Box, Chip, Icon, IconButton, Skeleton, Typography } from "@mui/material";
-import { ApiHelper, Locale } from "@churchapps/apphelper";
+import { ApiHelper, Locale, UserHelper } from "@churchapps/apphelper";
 import { MarkdownPreviewLight } from "@churchapps/apphelper/markdown";
-import type { LinkInterface } from "@churchapps/helpers";
+import { Permissions, type LinkInterface } from "@churchapps/helpers";
 import UserContext from "@/context/UserContext";
 import { ConfigurationInterface } from "@/helpers/ConfigHelper";
 import { mobileTheme } from "../mobileTheme";
 import { EventProcessor } from "../../helpers/eventProcessor";
 import { useChurchLinks, filterVisibleLinks } from "../../hooks/useConfig";
+import { CreateEventModal } from "../group/CreateEventModal";
 
 interface Props {
   config: ConfigurationInterface;
@@ -73,9 +74,13 @@ export const CalendarPage = ({ config }: Props) => {
   const context = useContext(UserContext);
   const jwt = context?.userChurch?.jwt;
   const churchId = config?.church?.id;
+  const queryClient = useQueryClient();
   const [currentMonth, setCurrentMonth] = useState<Date>(new Date());
   const [selected, setSelected] = useState<string>(isoDate(new Date()));
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [showCreateEvent, setShowCreateEvent] = useState(false);
+
+  const canCreateEvents = !!UserHelper.currentUserChurch && UserHelper.checkAccess(Permissions.contentApi.content.edit);
 
   const { data: rawLinks } = useChurchLinks(churchId, jwt);
 
@@ -267,9 +272,21 @@ export const CalendarPage = ({ config }: Props) => {
       </Box>
 
       <Box>
-        <Typography sx={{ fontSize: 16, fontWeight: 700, color: tc.text, mb: 1 }}>
-          {new Date(selected + "T00:00:00").toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" })}
-        </Typography>
+        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1 }}>
+          <Typography sx={{ fontSize: 16, fontWeight: 700, color: tc.text }}>
+            {new Date(selected + "T00:00:00").toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" })}
+          </Typography>
+          {canCreateEvents && (
+            <IconButton
+              onClick={() => setShowCreateEvent(true)}
+              aria-label={Locale.label("mobile.group.newEvent")}
+              size="small"
+              sx={{ bgcolor: tc.primaryLight, color: tc.primary, "&:hover": { bgcolor: tc.primaryLight } }}
+            >
+              <Icon>add</Icon>
+            </IconButton>
+          )}
+        </Box>
         {isLoading && (
           <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
             {[0, 1].map((i) => (
@@ -318,6 +335,18 @@ export const CalendarPage = ({ config }: Props) => {
           </Box>
         )}
       </Box>
+
+      {canCreateEvents && showCreateEvent && (
+        <CreateEventModal
+          open={showCreateEvent}
+          initialDateIso={`${selected}T09:00`}
+          onClose={() => setShowCreateEvent(false)}
+          onSaved={() => {
+            queryClient.invalidateQueries({ queryKey: ["calendar-events"] });
+            setShowCreateEvent(false);
+          }}
+        />
+      )}
     </Box>
   );
 };
