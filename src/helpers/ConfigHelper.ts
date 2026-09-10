@@ -84,7 +84,8 @@ export class ConfigHelper {
       case "directory": route = "/directory"; break;
       case "bible": route = "/bible"; break;
       case "url": route = `/url/${firstTab.id}`; break;
-      case "vivaEngage": route = `/url/${firstTab.id}`; break;
+      case "vivaEngage":
+      case "vivaengage": route = `/url/${firstTab.id}`; break;
       case "page": route = `/pages/${firstTab.churchId}/${firstTab.linkData}`; break;
       case "donationLanding": route = "/donation-landing"; break;
       default: route = "/"; break;

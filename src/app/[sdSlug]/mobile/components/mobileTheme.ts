@@ -126,13 +126,14 @@ export const linkTypeToRoute = (
   text?: string,
   url?: string
 ): string | null => {
-  switch (linkType) {
+  switch ((linkType || "").toLowerCase()) {
     case "groups": return "/mobile/groups";
     case "directory": return "/mobile/community";
     case "plans": return "/mobile/plans";
     case "checkin": return "/mobile/checkin";
     case "lessons": return "/mobile/lessons";
     case "donation": return "/mobile/donate";
+    case "donationlanding": return "/mobile/donate";
     case "volunteer": return "/mobile/volunteer";
     case "bible": return "/mobile/bible";
     case "votd": return "/mobile/votd";
@@ -140,7 +141,7 @@ export const linkTypeToRoute = (
     case "stream": return "/mobile/stream";
     case "registrations": return "/mobile/registrations";
     case "calendar": return "/mobile/calendar";
-    case "vivaEngage": {
+    case "vivaengage": {
       const params = new URLSearchParams();
       params.set("title", text || Locale.label("mobile.screenTitles.vivaEngage"));
       params.set("url", url || linkData || "https://engage.cloud.microsoft/");
