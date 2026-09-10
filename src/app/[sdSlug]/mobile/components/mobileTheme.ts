@@ -84,6 +84,8 @@ export const SCREEN_TITLES: Record<string, string> = new Proxy({} as Record<stri
       stream: Locale.label("mobile.screenTitles.stream"),
       bible: Locale.label("mobile.screenTitles.bible"),
       lessons: Locale.label("mobile.screenTitles.lessons"),
+      vivaEngage: Locale.label("mobile.screenTitles.vivaEngage"),
+      "viva-engage": Locale.label("mobile.screenTitles.vivaEngage"),
       login: Locale.label("mobile.screenTitles.signIn"),
       install: Locale.label("mobile.screenTitles.installApp"),
       page: "",
@@ -113,6 +115,7 @@ export const linkTypeToImage = (linkType?: string, text?: string): string => {
     case "directory": return "/mobile/images/dash_directory.png";
     case "plans": return "/mobile/images/dash_votd.png";
     case "calendar": return "/mobile/images/dash_votd.png";
+    case "vivaengage": return "/mobile/images/dash_url.png";
     default: return "/mobile/images/dash_url.png";
   }
 };
@@ -137,6 +140,12 @@ export const linkTypeToRoute = (
     case "stream": return "/mobile/stream";
     case "registrations": return "/mobile/registrations";
     case "calendar": return "/mobile/calendar";
+    case "vivaEngage": {
+      const params = new URLSearchParams();
+      params.set("title", text || Locale.label("mobile.screenTitles.vivaEngage"));
+      params.set("url", url || linkData || "https://engage.cloud.microsoft/");
+      return `/mobile/viva-engage?${params.toString()}`;
+    }
     case "page": {
       const id = url || linkData || "";
       const params = new URLSearchParams();
@@ -170,6 +179,7 @@ export const linkTypeToIcon = (linkType?: string, itemIcon?: string): string => 
     case "stream": return "live_tv";
     case "url": return "public";
     case "calendar": return "calendar_month";
+    case "vivaengage": return "forum";
     default: return "apps";
   }
 };
@@ -192,6 +202,7 @@ export const linkTypeToTagline = (linkType?: string): string | null => {
     case "stream": return Locale.label("mobile.taglines.stream");
     case "registrations": return Locale.label("mobile.taglines.registrations");
     case "calendar": return Locale.label("mobile.taglines.calendar");
+    case "vivaengage": return Locale.label("mobile.taglines.vivaEngage");
     default: return null;
   }
 };

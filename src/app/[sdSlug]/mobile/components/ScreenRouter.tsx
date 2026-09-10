@@ -75,6 +75,7 @@ export function ScreenRouter({ pageSlug, config }: Props) {
     case "stream": return <StreamPage config={config} />;
     case "calendar": return <CalendarPage config={config} />;
     case "websiteUrl":
+    case "viva-engage":
     case "page": return <WebsiteUrlPage config={config} />;
     case "login": return <MobileLoginScreen config={config} />;
     default: return <PlaceholderPage title={pageSlug} icon="apps" description={Locale.label("mobile.components.screenNotImplemented").replace("{}", pageSlug)} />;
