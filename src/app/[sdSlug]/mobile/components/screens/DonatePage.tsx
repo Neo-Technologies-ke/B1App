@@ -104,17 +104,21 @@ function DonatePageInner({ config }: Props) {
   }
 
   const { data: paymentData, isLoading: isMethodsLoading } = useQuery<PaymentData>({
-    queryKey: ["donate-payment-data", personId],
+    queryKey: ["donate-payment-data", church?.id, personId],
     queryFn: async () => {
-      const gateways: PaymentGateway[] = await ApiHelper.get("/gateways", "GivingApi");
+      const gatewayResponse = await ApiHelper.getAnonymous("/donate/gateways/" + church.id, "GivingApi");
+      const gateways: PaymentGateway[] = Array.isArray(gatewayResponse?.gateways) ? gatewayResponse.gateways : [];
       if (!gateways?.length) {
-        return { stripePromise: null, paymentMethods: [], customerId: null, person: null, currency: "usd", paymentGateways: [] };
+        return { stripePromise: null, paymentMethods: [], customerId: null, person: null, currency: "kes", paymentGateways: [] };
       }
       const stripeGateway = DonationHelper.findGatewayByProvider(gateways, "stripe");
       const stripePromise = stripeGateway?.publicKey ? (loadStripe(stripeGateway.publicKey) as Promise<Stripe>) : null;
+      const supportsSavedMethods = gateways.some((g) => getPaymentProvider(g.provider).capabilities.savedCard);
       const [methodsResult, personResult] = await Promise.all([
-        ApiHelper.get("/paymentmethods/personid/" + personId, "GivingApi") as Promise<{ provider?: string; customerId?: string }[]>,
-        ApiHelper.get("/people/" + personId, "MembershipApi") as Promise<PersonInterface>
+        supportsSavedMethods
+          ? (ApiHelper.get("/paymentmethods/personid/" + personId, "GivingApi") as Promise<{ provider?: string; customerId?: string }[]>).catch(() => [])
+          : Promise.resolve([]),
+        (ApiHelper.get("/people/" + personId, "MembershipApi") as Promise<PersonInterface>).catch(() => context?.userChurch?.person || null)
       ]);
       const pms: AppHelperStripePaymentMethod[] = [];
       let customerId: string | null = null;
@@ -124,16 +128,16 @@ function DonatePageInner({ config }: Props) {
           if (pm.customerId && !customerId) customerId = pm.customerId;
         }
       }
-      return { stripePromise, paymentMethods: pms, customerId, person: personResult || null, currency: gateways[0].currency || "usd", paymentGateways: gateways };
+      return { stripePromise, paymentMethods: pms, customerId, person: personResult || context?.userChurch?.person || null, currency: gateways[0].currency || "kes", paymentGateways: gateways };
     },
-    enabled: donationsEnabled
+    enabled: donationsEnabled && !UniqueIdHelper.isMissing(church?.id)
   });
 
   const stripePromise = paymentData?.stripePromise ?? null;
   const paymentMethods = paymentData?.paymentMethods ?? null;
   const customerId = paymentData?.customerId ?? null;
   const person = paymentData?.person ?? null;
-  const pageCurrency = paymentData?.currency ?? "usd";
+  const pageCurrency = paymentData?.currency ?? "kes";
   const paymentGateways = paymentData?.paymentGateways ?? [];
 
   const { data: subscriptions = [] } = useQuery<SubscriptionRow[]>({

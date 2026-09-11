@@ -29,11 +29,11 @@ export const CampaignProgress: React.FC<Props> = ({ churchId, isAuthenticated = 
     if (!churchId) return;
     ApiHelper.getAnonymous("/campaigns/churchId/" + churchId, "GivingApi").then((data: CampaignProgressInterface[]) => {
       setCampaigns(Array.isArray(data) ? data : []);
-    });
+    }).catch(() => setCampaigns([]));
     if (isAuthenticated) {
       ApiHelper.get("/pledges/my", "GivingApi").then((data: MyPledgeInterface[]) => {
         setMyPledges(Array.isArray(data) ? data : []);
-      });
+      }).catch(() => setMyPledges([]));
     }
   }, [churchId, isAuthenticated]);
 

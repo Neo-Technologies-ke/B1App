@@ -49,45 +49,62 @@ export const BaseDonationPage: React.FC<Props> = (props) => {
           setDonations(data);
         }
       });
-      ApiHelper.get("/gateways", "GivingApi").then((data: PaymentGateway[]) => {
-        if (!isMounted()) return;
-        if (data.length) {
+
+      const loadGateways = async (): Promise<PaymentGateway[]> => {
+        if (props.church?.id) {
+          const response = await ApiHelper.getAnonymous("/donate/gateways/" + props.church.id, "GivingApi");
+          return Array.isArray(response?.gateways) ? response.gateways : [];
+        }
+        return await ApiHelper.get("/gateways", "GivingApi");
+      };
+
+      void (async () => {
+        try {
+          const data = await loadGateways();
+          if (!isMounted()) return;
+          if (!data.length) {
+            setAppHelperPaymentMethods([]);
+            setIsLoading(false);
+            return;
+          }
+
           setPaymentGateways(data);
           const stripeGateway = DonationHelper.findGatewayByProvider(data, "stripe");
           if (stripeGateway?.publicKey) {
             setStripe(loadStripe(stripeGateway.publicKey));
           }
-          ApiHelper.get("/paymentmethods/personid/" + props.personId, "GivingApi").then((results: { provider?: string; customerId?: string }[]) => {
-            if (!isMounted()) {
-              return;
-            }
-            if (!Array.isArray(results) || results.length === 0) {
-              setAppHelperPaymentMethods([]);
-            } else {
-              const appHelperMethods: AppHelperStripePaymentMethod[] = [];
-              for (const pm of results) {
-                if (getPaymentProvider(pm.provider).capabilities.savedCard) {
-                  appHelperMethods.push(new AppHelperStripePaymentMethod(pm));
-                }
-                // Extract customer ID from first payment method if we don't have one
-                if (pm.customerId && !customerId) {
-                  setCustomerId(pm.customerId);
-                }
+
+          const supportsSavedMethods = data.some((g) => getPaymentProvider(g.provider).capabilities.savedCard);
+          const [results, personData] = await Promise.all([
+            supportsSavedMethods
+              ? (ApiHelper.get("/paymentmethods/personid/" + props.personId, "GivingApi") as Promise<{ provider?: string; customerId?: string }[]>).catch(() => [])
+              : Promise.resolve([]),
+            (ApiHelper.get("/people/" + props.personId, "MembershipApi") as Promise<PersonInterface>).catch(() => null)
+          ]);
+          if (!isMounted()) return;
+
+          const appHelperMethods: AppHelperStripePaymentMethod[] = [];
+          let nextCustomerId: string | null = null;
+          if (Array.isArray(results)) {
+            for (const pm of results) {
+              if (getPaymentProvider(pm.provider).capabilities.savedCard) {
+                appHelperMethods.push(new AppHelperStripePaymentMethod(pm));
               }
-              setAppHelperPaymentMethods(appHelperMethods);
+              if (pm.customerId && !nextCustomerId) {
+                nextCustomerId = pm.customerId;
+              }
             }
-            setIsLoading(false);
-          });
-          ApiHelper.get("/people/" + props.personId, "MembershipApi").then((data: PersonInterface) => {
-            if (isMounted()) {
-              setPerson(data);
-            }
-          });
-        } else {
+          }
+          setAppHelperPaymentMethods(appHelperMethods);
+          setCustomerId(nextCustomerId);
+          setPerson(personData || null);
+          setIsLoading(false);
+        } catch {
+          if (!isMounted()) return;
           setAppHelperPaymentMethods([]);
           setIsLoading(false);
         }
-      });
+      })();
     } else {
       setAppHelperPaymentMethods([]);
       setDonations([]);

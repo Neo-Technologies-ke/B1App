@@ -20,7 +20,8 @@ const applyKesPatch = (helper: CurrencyHelperLike) => {
   const originalLoadCurrency = helper.loadCurrency?.bind(helper);
 
   helper.getCurrencySymbol = (currency?: string) => {
-    if ((currency || "").toLowerCase() === "kes") return "Kshs";
+    const normalized = (currency || "kes").toLowerCase();
+    if (normalized === "kes") return "Kshs";
     return originalGetCurrencySymbol ? originalGetCurrencySymbol(currency) : "$";
   };
 
