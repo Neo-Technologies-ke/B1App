@@ -58,6 +58,7 @@ const nextConfig = {
     if (!process.env.TURBOPACK) {
       // Optimize chunking strategy
       if (!isServer) {
+        const isJavaScriptModule = (module) => module?.type?.startsWith('javascript');
         config.optimization = {
           ...config.optimization,
           splitChunks: {
@@ -69,26 +70,27 @@ const nextConfig = {
               vendor: {
                 name: 'vendor',
                 chunks: 'all',
-                test: /node_modules/,
+                test: (module) => isJavaScriptModule(module) && /node_modules/.test(module.resource || ''),
                 priority: 20
               },
               // MUI components
               mui: {
                 name: 'mui',
-                test: /[\\/]node_modules[\\/]@mui[\\/]/,
+                test: (module) => isJavaScriptModule(module) && /[\\/]node_modules[\\/]@mui[\\/]/.test(module.resource || ''),
                 chunks: 'all',
                 priority: 30
               },
               // ChurchApps packages
               churchapps: {
                 name: 'churchapps',
-                test: /[\\/]node_modules[\\/]@churchapps[\\/]/,
+                test: (module) => isJavaScriptModule(module) && /[\\/]node_modules[\\/]@churchapps[\\/]/.test(module.resource || ''),
                 chunks: 'all',
                 priority: 25
               },
               // Common components
               common: {
                 name: 'common',
+                test: isJavaScriptModule,
                 minChunks: 2,
                 priority: 10,
                 reuseExistingChunk: true,
