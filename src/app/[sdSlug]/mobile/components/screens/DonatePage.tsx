@@ -68,7 +68,16 @@ function DonatePageInner({ config }: Props) {
   const churchLogo = AppearanceHelper.getLogo(config?.appearance, "", "", "#FFF");
   const queryClient = useQueryClient();
   const isAuthenticated = !!context?.user?.firstName && !UniqueIdHelper.isMissing(personId);
-  const donationsEnabled = config?.allowDonations !== false && isAuthenticated;
+  const { data: gatewayConfigured } = useQuery<{ configured?: boolean }>({
+    queryKey: ["gateway-configured", church?.id],
+    queryFn: async () => {
+      if (!church?.id) return { configured: false };
+      return await ApiHelper.getAnonymous("/gateways/configured/" + church.id, "GivingApi");
+    },
+    enabled: !UniqueIdHelper.isMissing(church?.id)
+  });
+  const allowDonations = config?.allowDonations !== false || gatewayConfigured?.configured === true;
+  const donationsEnabled = allowDonations && isAuthenticated;
 
   const [message, setMessage] = useState<string | null>(null);
 
@@ -188,7 +197,7 @@ function DonatePageInner({ config }: Props) {
     setTab("donate");
   };
 
-  if (config?.allowDonations === false) {
+  if (!allowDonations) {
     return (
       <Box sx={{ p: `${mobileTheme.spacing.md}px`, bgcolor: tc.background, minHeight: "100%" }}>
         <Box

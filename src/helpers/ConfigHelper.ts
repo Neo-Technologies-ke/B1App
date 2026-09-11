@@ -26,6 +26,15 @@ const fetchCached = async <T>(path: string, apiName: string, tag: string): Promi
   return response.json();
 };
 
+const fetchUncached = async <T>(path: string, apiName: string): Promise<T> => {
+  const apiConfig = ApiHelper.getConfig(apiName);
+  if (!apiConfig) throw new Error("Unconfigured API: " + apiName);
+  const url = apiConfig.url + path;
+  const response = await fetch(url, { cache: "no-store" } as RequestInit);
+  if (!response.ok) throw new Error(response.status + " " + response.statusText + " for " + url);
+  return response.json();
+};
+
 export class ConfigHelper {
 
   static clearCache(sdKey: string) {
@@ -43,7 +52,9 @@ export class ConfigHelper {
       fetchCached<AppearanceInterface>("/settings/public/" + church.id, "MembershipApi", keyName),
       fetchCached<LinkInterface[]>("/links/church/" + church.id + "?category=" + navCategory, "ContentApi", keyName),
       ApiHelper.getAnonymous("/pages/" + church.id + "/tree?url=/", "ContentApi") as Promise<PageInterface>,
-      fetchCached<{ configured?: boolean }>("/gateways/configured/" + church.id, "GivingApi", keyName),
+      // Gateway setup status must reflect admin changes immediately, so don't keep it in
+      // the same 5-minute config cache bucket as appearance/nav links.
+      fetchUncached<{ configured?: boolean }>("/gateways/configured/" + church.id, "GivingApi"),
       fetchCached<GlobalStyleInterface>("/globalStyles/church/" + church.id, "ContentApi", keyName)
     ]);
     let appTheme: AppThemeConfig | undefined;

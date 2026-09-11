@@ -17,6 +17,7 @@ import type { FundDonationInterface, FundInterface } from "@churchapps/helpers";
 import { generatePaystackReference, loadPaystackInlineScript } from "./paystackInline";
 
 const DEFAULT_CHANNELS = ["card", "mobile_money", "bank", "ussd"];
+const getDisplayCurrency = (currency?: string) => (currency || "kes").toLowerCase();
 
 interface OpenCheckoutOptions {
   publicKey: string;
@@ -127,6 +128,7 @@ const PaystackGuestForm: React.FC<GuestFormProps> = ({ mainContainerCssProps, sh
   const [captchaResponse, setCaptchaResponse] = useState("");
   const [church, setChurch] = useState<{ name?: string; subDomain?: string } | null>(null);
   const [searchParams, setSearchParams] = useState<{ fundId: string | null; amount: string | null } | null>(null);
+  const displayCurrency = getDisplayCurrency(props.gateway?.currency);
 
   useEffect(() => {
     const getUrlParam = (param: string) => {
@@ -307,17 +309,17 @@ const PaystackGuestForm: React.FC<GuestFormProps> = ({ mainContainerCssProps, sh
       {fundsTotal > 0 && (
         <div>
           {props.gateway?.payFees === true ? (
-            <Typography fontSize={14} fontStyle="italic">*{Locale.label("donation.donationForm.fees").replace("{}", CurrencyHelper.formatCurrency(transactionFee))}</Typography>
+            <Typography fontSize={14} fontStyle="italic">*{Locale.label("donation.donationForm.fees").replace("{}", CurrencyHelper.formatCurrencyWithLocale(transactionFee, displayCurrency))}</Typography>
           ) : (
             <FormGroup>
               <FormControlLabel
                 control={<Checkbox checked={coverFees} onChange={handleCheckChange} />}
                 name="transaction-fee"
-                label={Locale.label("donation.donationForm.cover").replace("{}", CurrencyHelper.formatCurrency(transactionFee))}
+                label={Locale.label("donation.donationForm.cover").replace("{}", CurrencyHelper.formatCurrencyWithLocale(transactionFee, displayCurrency))}
               />
             </FormGroup>
           )}
-          <p>{Locale.label("donation.donationForm.total")}: {CurrencyHelper.formatCurrency(total)}</p>
+          <p>{Locale.label("donation.donationForm.total")}: {CurrencyHelper.formatCurrencyWithLocale(total, displayCurrency)}</p>
         </div>
       )}
     </InputBox>
