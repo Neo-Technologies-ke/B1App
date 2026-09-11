@@ -7,6 +7,7 @@ import { ErrorHelper, Locale, UserHelper } from "@churchapps/apphelper";
 import type { ErrorAppDataInterface } from "@churchapps/helpers";
 import { CookieProviderWrapper } from "@/components/CookieProviderWrapper";
 import { EnvironmentHelper } from "@/helpers";
+import "@/helpers/kesCurrencyPatch";
 import { UserProvider } from "@/context/UserContext";
 import { MobileQueryProvider } from "./MobileQueryProvider";
 import MobileGoogleAnalytics from "./MobileGoogleAnalytics";
