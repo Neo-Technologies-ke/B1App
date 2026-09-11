@@ -104,6 +104,9 @@
     "printLastYear": "Print last year donations"
   },
   "donation": {
+    "common": {
+      "error": "There was a problem processing your donation. Please try again."
+    },
     "donationForm": {
       "validate": {
         "email": "Email",
@@ -119,6 +122,9 @@
       "fund": "Fund",
       "method": "Method",
       "willAppear": "Will Appear"
+    },
+    "paystack": {
+      "popupHint": "A secure Paystack window will open where you can pay by card or M-Pesa."
     }
   },
   "donationLanding": {

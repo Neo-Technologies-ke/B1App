@@ -4,6 +4,7 @@ import React from "react";
 import { Box, Typography } from "@mui/material";
 import { NonAuthDonationWrapper } from "@churchapps/apphelper/website";
 import { Locale } from "@churchapps/apphelper";
+import "@/components/donate/PaystackProvider";
 
 interface Props {
   churchId: string

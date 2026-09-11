@@ -39,6 +39,7 @@ import type {
   PersonInterface
 } from "@churchapps/helpers";
 import { CampaignProgress } from "@/components/donate/CampaignProgress";
+import "@/components/donate/PaystackProvider";
 import UserContext from "@/context/UserContext";
 import { ConfigurationInterface } from "@/helpers/ConfigHelper";
 import { mobileTheme } from "../mobileTheme";

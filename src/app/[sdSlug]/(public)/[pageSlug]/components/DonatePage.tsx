@@ -7,6 +7,7 @@ import { UserHelper, Locale } from "@churchapps/apphelper";
 import { Button, Container, Grid, Icon, Link, Typography } from "@mui/material";
 import { redirect } from "next/navigation";
 import { CampaignProgress } from "@/components/donate/CampaignProgress";
+import "@/components/donate/PaystackProvider";
 
 type Props = { config?: ConfigurationInterface; };
 

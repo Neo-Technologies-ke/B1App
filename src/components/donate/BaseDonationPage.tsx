@@ -4,6 +4,7 @@ import React from "react";
 import { loadStripe, Stripe } from "@stripe/stripe-js";
 import { RecurringDonations, StripePaymentMethod as AppHelperStripePaymentMethod, MultiGatewayDonationForm, DonationHelper, getPaymentProvider } from "@churchapps/apphelper/donations";
 import type { PaymentGateway } from "@churchapps/apphelper/donations";
+import "./PaystackProvider";
 import { PaymentMethods } from "@churchapps/apphelper/donations";
 import { DisplayBox } from "@churchapps/apphelper";
 import { ExportLink } from "@churchapps/apphelper";
