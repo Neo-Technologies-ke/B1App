@@ -1,7 +1,7 @@
 "use client";
 
 import React, { forwardRef, useEffect, useImperativeHandle, useState } from "react";
-import { Alert, Box, Checkbox, FormControlLabel, FormGroup, Grid, TextField, Typography } from "@mui/material";
+import { Alert, Box, Checkbox, FormControlLabel, FormGroup, Grid, Stack, TextField, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
 import ReCAPTCHA from "react-google-recaptcha";
 import { ApiHelper, CurrencyHelper, ErrorMessages, InputBox, Locale } from "@churchapps/apphelper";
 import { FundDonations, registerPaymentProvider } from "@churchapps/apphelper/donations";
@@ -56,6 +56,29 @@ async function openPaystackCheckout(options: OpenCheckoutOptions): Promise<strin
   });
 }
 
+async function initiateMpesa(ctx: ChargeContext, gateway: MemberEntryProps["gateway"], phone: string): Promise<string> {
+  const initiated: any = await ApiHelper.post("/donate/mpesa/initiate", {
+    churchId: ctx.churchId,
+    gatewayId: gateway.id,
+    phone,
+    email: ctx.person?.email,
+    amount: ctx.amount,
+    currency: ctx.currency || gateway.currency || "kes",
+    funds: ctx.funds,
+    person: ctx.person,
+    notes: ctx.notes
+  }, "GivingApi");
+  const reference = initiated?.reference;
+  if (!reference) throw new Error(initiated?.error || "M-PESA payment could not be initiated.");
+  for (let attempt = 0; attempt < 40; attempt++) {
+    const status: any = await ApiHelper.post("/donate/mpesa/status", { churchId: ctx.churchId, gatewayId: gateway.id, reference }, "GivingApi");
+    if (status?.status === "success") return reference;
+    if (["failed", "abandoned", "reversed"].includes(status?.status)) throw new Error(status?.gatewayResponse || "M-PESA payment was not completed.");
+    await new Promise((resolve) => window.setTimeout(resolve, 3000));
+  }
+  throw new Error("M-PESA confirmation is taking longer than expected. Check your phone, then try again if necessary.");
+}
+
 function buildPaystackChargeBody(ctx: ChargeContext, token: PaymentToken) {
   return {
     provider: "paystack",
@@ -74,18 +97,25 @@ function buildPaystackChargeBody(ctx: ChargeContext, token: PaymentToken) {
 // Member entry: the same Inline popup as the guest form, so a logged-in donor never
 // leaves the page (no redirect/session-restore workaround needed).
 const PaystackMemberEntry = forwardRef<MemberEntryHandle, MemberEntryProps>(({ gateway, getContext }, ref) => {
+  const [paymentType, setPaymentType] = useState<"card" | "mpesa">("mpesa");
+  const [phone, setPhone] = useState("");
+  const [waiting, setWaiting] = useState(false);
   useImperativeHandle(ref, () => ({
     tokenize: async (): Promise<PaymentToken> => {
       const ctx = getContext?.();
       if (!ctx) throw new Error("Donation details are not available.");
-      const channels = (gateway?.settings as { channels?: string[] } | undefined)?.channels;
+      if (paymentType === "mpesa") {
+        if (!phone.trim()) throw new Error("Enter the Safaricom phone number that should receive the M-PESA prompt.");
+        setWaiting(true);
+        try { return { id: await initiateMpesa(ctx, gateway, phone), type: "bank" }; } finally { setWaiting(false); }
+      }
       const reference = await openPaystackCheckout({
         publicKey: gateway.publicKey || "",
         email: ctx.person?.email || "",
         amount: ctx.amount,
         currency: ctx.currency || gateway.currency || "kes",
         churchId: ctx.churchId,
-        channels,
+        channels: ["card"],
         metadata: {
           funds: JSON.stringify(ctx.funds || []),
           notes: ctx.notes || "",
@@ -96,11 +126,15 @@ const PaystackMemberEntry = forwardRef<MemberEntryHandle, MemberEntryProps>(({ g
       return { id: reference, type: "card" };
     }
   }));
-  return (
-    <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-      {Locale.label("donation.paystack.popupHint")}
-    </Typography>
-  );
+  return <Stack spacing={1.5}>
+    <ToggleButtonGroup value={paymentType} exclusive fullWidth size="small" onChange={(_, value) => value && setPaymentType(value)}>
+      <ToggleButton value="mpesa">M-PESA</ToggleButton><ToggleButton value="card">Card</ToggleButton>
+    </ToggleButtonGroup>
+    {paymentType === "mpesa" ? <>
+      <TextField fullWidth label="M-PESA phone number" placeholder="0710000000" value={phone} onChange={(e) => setPhone(e.target.value)} disabled={waiting} inputProps={{ inputMode: "tel" }} />
+      <Typography variant="body2" color="text.secondary">{waiting ? "Check your phone and enter your M-PESA PIN to approve the payment…" : "An M-PESA payment prompt will be sent to this phone."}</Typography>
+    </> : <Typography variant="body2" color="text.secondary">Your card details will be collected securely in the Paystack checkout window.</Typography>}
+  </Stack>;
 });
 PaystackMemberEntry.displayName = "PaystackMemberEntry";
 
@@ -124,6 +158,8 @@ const PaystackGuestForm: React.FC<GuestFormProps> = ({ mainContainerCssProps, sh
   const [donationComplete, setDonationComplete] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [notes, setNotes] = useState("");
+  const [paymentType, setPaymentType] = useState<"card" | "mpesa">("mpesa");
+  const [phone, setPhone] = useState("");
   const [coverFees, setCoverFees] = useState(false);
   const [captchaResponse, setCaptchaResponse] = useState("");
   const [church, setChurch] = useState<{ name?: string; subDomain?: string } | null>(null);
@@ -190,6 +226,7 @@ const PaystackGuestForm: React.FC<GuestFormProps> = ({ mainContainerCssProps, sh
     if (!firstName) result.push(Locale.label("donation.donationForm.validate.firstName"));
     if (!lastName) result.push(Locale.label("donation.donationForm.validate.lastName"));
     if (!email) result.push(Locale.label("donation.donationForm.validate.email"));
+    if (paymentType === "mpesa" && !phone.trim()) result.push("Enter the Safaricom phone number that should receive the M-PESA prompt.");
     if (fundsTotal === 0) result.push(Locale.label("donation.donationForm.validate.amount"));
     if (result.length === 0 && !email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) result.push(Locale.label("donation.donationForm.validate.validEmail"));
     setErrors(result);
@@ -206,20 +243,18 @@ const PaystackGuestForm: React.FC<GuestFormProps> = ({ mainContainerCssProps, sh
     };
 
     try {
-      const reference = await openPaystackCheckout({
-        publicKey: props.gateway?.publicKey || "",
-        email,
-        amount: total,
-        currency: props.gateway?.currency || "kes",
-        churchId: props.churchId,
-        channels: (props.gateway?.settings as { channels?: string[] } | undefined)?.channels,
-        metadata: {
-          funds: JSON.stringify(compactFunds),
-          notes,
-          personId: person?.id || "",
-          churchId: props.churchId
-        }
-      });
+      const personData = { id: person?.id || "", email, name: `${firstName} ${lastName}` };
+      const reference = paymentType === "mpesa"
+        ? await initiateMpesa({ provider: "paystack", gatewayId: props.gateway?.id, churchId: props.churchId, amount: total, funds: compactFunds, person: personData, notes, church: churchObj, recurring: false, saveCard: false, currency: props.gateway?.currency || "kes" } as ChargeContext, props.gateway, phone)
+        : await openPaystackCheckout({
+          publicKey: props.gateway?.publicKey || "",
+          email,
+          amount: total,
+          currency: props.gateway?.currency || "kes",
+          churchId: props.churchId,
+          channels: ["card"],
+          metadata: { funds: JSON.stringify(compactFunds), notes, personId: person?.id || "", churchId: props.churchId }
+        });
 
       const results: any = await ApiHelper.post("/donate/charge", {
         provider: "paystack",
@@ -228,7 +263,7 @@ const PaystackGuestForm: React.FC<GuestFormProps> = ({ mainContainerCssProps, sh
         churchId: props.churchId,
         amount: total,
         funds: compactFunds,
-        person: { id: person?.id || "", email, name: `${firstName} ${lastName}` },
+        person: personData,
         notes,
         church: churchObj
       }, "GivingApi");
@@ -295,8 +330,11 @@ const PaystackGuestForm: React.FC<GuestFormProps> = ({ mainContainerCssProps, sh
           <ReCAPTCHA sitekey={props.recaptchaSiteKey} onChange={handleCaptchaChange} onExpired={() => setCaptchaResponse("")} onErrored={() => setCaptchaResponse("error")} />
         </Grid>
       </Grid>
-      <Box sx={{ mt: 2, mb: 1 }}>
-        <Typography variant="body2" color="text.secondary">{Locale.label("donation.paystack.popupHint")}</Typography>
+      <Box sx={{ mt: 2, mb: 2 }}>
+        <ToggleButtonGroup value={paymentType} exclusive fullWidth size="small" onChange={(_, value) => value && setPaymentType(value)}>
+          <ToggleButton value="mpesa">M-PESA</ToggleButton><ToggleButton value="card">Card</ToggleButton>
+        </ToggleButtonGroup>
+        {paymentType === "mpesa" ? <TextField fullWidth sx={{ mt: 2 }} label="M-PESA phone number" placeholder="0710000000" value={phone} onChange={(e) => setPhone(e.target.value)} inputProps={{ inputMode: "tel" }} helperText="An M-PESA prompt will be sent to this phone." /> : <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>{Locale.label("donation.paystack.popupHint")}</Typography>}
       </Box>
       {allowSingleGift && funds.length > 0 && showFundSelector && (
         <>
