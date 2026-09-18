@@ -97,11 +97,13 @@ function buildPaystackChargeBody(ctx: ChargeContext, token: PaymentToken) {
 
 // Member entry: the same Inline popup as the guest form, so a logged-in donor never
 // leaves the page (no redirect/session-restore workaround needed).
-const PaystackMemberEntry = forwardRef<MemberEntryHandle, MemberEntryProps>(({ gateway, getContext }, ref) => {
+type PaystackMemberEntryProps = MemberEntryProps & { onPaymentMethodNameChange?: (name: string) => void };
+const PaystackMemberEntry = forwardRef<MemberEntryHandle, PaystackMemberEntryProps>(({ gateway, getContext, onPaymentMethodNameChange }, ref) => {
   const [paymentType, setPaymentType] = useState<"card" | "mpesa">("mpesa");
   const testMode = ["staging", "test", "sandbox"].includes(String(gateway.environment || "").toLowerCase());
   const [phone, setPhone] = useState(testMode ? "+254710000000" : "");
   const [waiting, setWaiting] = useState(false);
+  useEffect(() => { onPaymentMethodNameChange?.(paymentType === "mpesa" ? "M-PESA (Paystack)" : "Card (Paystack)"); }, [paymentType, onPaymentMethodNameChange]);
   useImperativeHandle(ref, () => ({
     tokenize: async (): Promise<PaymentToken> => {
       const ctx = getContext?.();

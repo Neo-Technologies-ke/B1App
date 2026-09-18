@@ -25,7 +25,7 @@
     "postinstall": "copyfiles -a -f node_modules/@churchapps/apphelper/dist/public/locales/** public/apphelper/locales && copyfiles -a -f node_modules/@churchapps/apphelper/dist/markdown/components/htmlEditor/editor.css public/apphelper/css && copyfiles -a -f node_modules/react-cropper/node_modules/cropperjs/dist/cropper.css public/css && copyfiles -a -f node_modules/@churchapps/apphelper/dist/website/styles/animations.css node_modules/@churchapps/apphelper/dist/website/styles/pages.css src/styles/vendor && copyfiles -a -f node_modules/@churchapps/apphelper/dist/markdown/components/markdownEditor/editor.css public/apphelper/css/markdown && copyfiles -a -u 8 \"node_modules/@churchapps/apphelper/dist/markdown/components/markdownEditor/images/**/*\" public/apphelper/css/markdown/images"
   },
   "dependencies": {
-    "@churchapps/apphelper": "^0.17.0",
+    "@churchapps/apphelper": "patch:@churchapps/apphelper@npm%3A0.17.0#~/.yarn/patches/@churchapps-apphelper-npm-0.17.0-3bb93f10a4.patch",
     "@churchapps/content-providers": "^0.4.1",
     "@churchapps/helpers": "patch:@churchapps/helpers@npm%3A1.8.2#~/.yarn/patches/@churchapps-helpers-npm-1.8.2-65f9977106.patch",
     "@emotion/react": "^11.14.0",
