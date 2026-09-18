@@ -12,6 +12,7 @@ import { mobileTheme } from "../mobileTheme";
 import { EventProcessor } from "../../helpers/eventProcessor";
 import { useChurchLinks, filterVisibleLinks } from "../../hooks/useConfig";
 import { CreateEventModal } from "../group/CreateEventModal";
+import { AppointmentsPanel } from "../calendar/AppointmentsPanel";
 
 interface Props {
   config: ConfigurationInterface;
@@ -28,6 +29,7 @@ interface EventRow {
   visibility?: string;
   recurrenceRule?: string;
   tags?: string;
+  appointmentStatus?: string;
 }
 
 const describeRecurrence = (rule?: string) => {
@@ -107,11 +109,21 @@ export const CalendarPage = ({ config }: Props) => {
     refetchOnMount: true // refresh when component mounts
   });
 
+  const { data: myAppointments = [] } = useQuery<any[]>({
+    queryKey: ["my-appointments"],
+    queryFn: async () => (await ApiHelper.get("/appointments/my", "ContentApi")) || [],
+    enabled: !!churchId && !!jwt,
+    placeholderData: []
+  });
+
   const events = useMemo(() => {
     const normalized = EventProcessor.updateTime(fetchedEvents || []);
-    const expanded = EventProcessor.expandEventsForMonth(normalized, currentMonth);
-    return expanded as unknown as EventRow[];
-  }, [fetchedEvents, currentMonth]);
+    const expanded = EventProcessor.expandEventsForMonth(normalized, currentMonth) as unknown as EventRow[];
+    const appointmentEvents = myAppointments
+      .filter((item) => !["rejected", "cancelled"].includes(item.status))
+      .map((item) => ({ id: `appointment-${item.id}`, title: `Appointment with ${item.leaderName}`, description: item.reason, start: item.start, end: item.end, tags: "Appointments", appointmentStatus: item.status }));
+    return [...expanded, ...appointmentEvents];
+  }, [fetchedEvents, myAppointments, currentMonth]);
 
   const allTags = useMemo(() => {
     const tags = new Set<string>();
@@ -151,7 +163,7 @@ export const CalendarPage = ({ config }: Props) => {
     if (selected.startsWith(monthPrefix)) return;
     const datesWithEvents = Object.keys(eventsByDate).filter((k) => k.startsWith(monthPrefix)).sort();
     setSelected(datesWithEvents.length > 0 ? datesWithEvents[0] : `${monthPrefix}-01`);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [currentMonth, eventsByDate]);
 
   const monthStart = startOfMonth(currentMonth);
@@ -185,6 +197,8 @@ export const CalendarPage = ({ config }: Props) => {
   return (
     <Box sx={{ p: `${mobileTheme.spacing.md}px`, bgcolor: tc.background, minHeight: "100%", display: "flex", flexDirection: "column", gap: `${mobileTheme.spacing.md}px` }}>
       <Typography sx={{ fontSize: 20, fontWeight: 700, color: tc.text }}>{pageTitle}</Typography>
+
+      <AppointmentsPanel />
 
       {allTags.length > 0 && (
         <Box sx={{ display: "flex", gap: 1, overflowX: "auto", pb: 0.5 }}>
@@ -309,7 +323,7 @@ export const CalendarPage = ({ config }: Props) => {
                   borderRadius: `${mobileTheme.radius.lg}px`,
                   boxShadow: mobileTheme.shadows.sm,
                   p: `${mobileTheme.spacing.md}px`,
-                  borderLeft: `4px solid ${tc.primary}`
+                  borderLeft: `4px solid ${e.appointmentStatus === "pending" ? tc.warning : e.appointmentStatus ? tc.success : tc.primary}`
                 }}
               >
                 <Typography sx={{ fontSize: 15, fontWeight: 600, color: tc.text }}>{e.title || Locale.label("mobile.group.event")}</Typography>
