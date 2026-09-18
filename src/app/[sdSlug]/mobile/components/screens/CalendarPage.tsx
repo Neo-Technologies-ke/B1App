@@ -81,6 +81,7 @@ export const CalendarPage = ({ config }: Props) => {
   const [selected, setSelected] = useState<string>(isoDate(new Date()));
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [showCreateEvent, setShowCreateEvent] = useState(false);
+  const [editEvent, setEditEvent] = useState<EventRow | null>(null);
 
   const canCreateEvents = !!UserHelper.currentUserChurch && UserHelper.checkAccess(Permissions.contentApi.content.edit);
 
@@ -250,11 +251,15 @@ export const CalendarPage = ({ config }: Props) => {
                 key={key}
                 role="button"
                 tabIndex={0}
-                onClick={() => setSelected(key)}
+                onClick={() => {
+                  setSelected(key);
+                  if (canCreateEvents) setShowCreateEvent(true);
+                }}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();
                     setSelected(key);
+                    if (canCreateEvents) setShowCreateEvent(true);
                   }
                 }}
                 sx={{
@@ -318,11 +323,16 @@ export const CalendarPage = ({ config }: Props) => {
             {selectedEvents.map((e, i) => (
               <Box
                 key={e.id || `ev-${i}`}
+                role={canCreateEvents && !e.appointmentStatus ? "button" : undefined}
+                tabIndex={canCreateEvents && !e.appointmentStatus ? 0 : undefined}
+                onClick={() => { if (canCreateEvents && !e.appointmentStatus) setEditEvent(e); }}
+                onKeyDown={(event) => { if (canCreateEvents && !e.appointmentStatus && (event.key === "Enter" || event.key === " ")) setEditEvent(e); }}
                 sx={{
                   bgcolor: tc.surface,
                   borderRadius: `${mobileTheme.radius.lg}px`,
                   boxShadow: mobileTheme.shadows.sm,
                   p: `${mobileTheme.spacing.md}px`,
+                  cursor: canCreateEvents && !e.appointmentStatus ? "pointer" : "default",
                   borderLeft: `4px solid ${e.appointmentStatus === "pending" ? tc.warning : e.appointmentStatus ? tc.success : tc.primary}`
                 }}
               >
@@ -358,6 +368,17 @@ export const CalendarPage = ({ config }: Props) => {
           onSaved={() => {
             queryClient.invalidateQueries({ queryKey: ["calendar-events"] });
             setShowCreateEvent(false);
+          }}
+        />
+      )}
+      {canCreateEvents && editEvent && (
+        <CreateEventModal
+          open={!!editEvent}
+          event={editEvent as any}
+          onClose={() => setEditEvent(null)}
+          onSaved={() => {
+            queryClient.invalidateQueries({ queryKey: ["calendar-events"] });
+            setEditEvent(null);
           }}
         />
       )}

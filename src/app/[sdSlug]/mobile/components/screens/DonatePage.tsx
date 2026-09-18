@@ -485,6 +485,20 @@ function DonatePageInner({ config }: Props) {
         </Box>
       );
     }
+    const supportsSavedMethods = paymentGateways.some((gateway) => {
+      const capabilities = getPaymentProvider(gateway.provider).capabilities;
+      return capabilities.savedCard || capabilities.savedBank;
+    });
+    if (!supportsSavedMethods) {
+      return (
+        <Box sx={{ bgcolor: tc.surface, borderRadius: `${mobileTheme.radius.lg}px`, boxShadow: mobileTheme.shadows.sm, p: `${mobileTheme.spacing.lg}px`, textAlign: "center" }}>
+          <Icon sx={{ color: tc.primary, fontSize: 42 }}>phone_android</Icon>
+          <Typography sx={{ color: tc.text, fontWeight: 700, mt: 1 }}>No saved payment methods required</Typography>
+          <Typography sx={{ color: tc.textSecondary, fontSize: 14, mt: 1 }}>Paystack securely collects your M-PESA phone number or card details each time you donate. This church does not store payment details.</Typography>
+          <Button variant="contained" sx={{ mt: 2 }} onClick={() => setTab("donate")}>Make a Donation</Button>
+        </Box>
+      );
+    }
     return (
       <Box
         sx={{

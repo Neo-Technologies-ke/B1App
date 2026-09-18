@@ -20,7 +20,7 @@ import {
   Typography
 } from "@mui/material";
 import { ApiHelper, EventHelper, Locale } from "@churchapps/apphelper";
-import type { EventExceptionInterface, EventInterface } from "@churchapps/helpers";
+import type { EventExceptionInterface, EventInterface, GroupInterface } from "@churchapps/helpers";
 import { mobileTheme } from "../mobileTheme";
 import { RRuleEditor } from "../../../../../components/eventCalendar/RRuleEditor";
 import { EditRecurringModal } from "../../../../../components/eventCalendar/EditRecurringModal";
@@ -94,6 +94,8 @@ export const CreateEventModal = ({ open, groupId, initialDateIso, event: eventPr
     };
   }, [eventProp, initialDateIso]);
 
+  const [groups, setGroups] = React.useState<GroupInterface[]>([]);
+  const [selectedGroupId, setSelectedGroupId] = React.useState(groupId || "whole_church");
   const [title, setTitle] = React.useState("");
   const [description, setDescription] = React.useState("");
   const [start, setStart] = React.useState("");
@@ -136,6 +138,7 @@ export const CreateEventModal = ({ open, groupId, initialDateIso, event: eventPr
   React.useEffect(() => {
     if (open) {
       const d = computeDefaults();
+      setSelectedGroupId(eventProp?.groupId || groupId || "whole_church");
       setTitle(d.title);
       setDescription(d.description);
       setStart(d.start);
@@ -163,6 +166,7 @@ export const CreateEventModal = ({ open, groupId, initialDateIso, event: eventPr
     setCustomWindow(false);
     setWindowStart("");
     setWindowEnd("");
+    if (!groupId) ApiHelper.get("/groups", "MembershipApi").then((result) => setGroups(result || [])).catch(() => setGroups([]));
     ApiHelper.get("/rooms", "ContentApi").then((r) => setRooms(r || [])).catch(() => setRooms([]));
     ApiHelper.get("/resources", "ContentApi").then((r) => setResources(r || [])).catch(() => setResources([]));
     if (eventProp?.id) {
@@ -232,7 +236,7 @@ export const CreateEventModal = ({ open, groupId, initialDateIso, event: eventPr
     const parsedCapacity = capacity.trim() ? parseInt(capacity, 10) : undefined;
     const payload: EventInterface = {
       ...(eventProp || {}),
-      groupId: eventProp?.groupId || groupId || undefined,
+      groupId: selectedGroupId === "whole_church" ? undefined : selectedGroupId || undefined,
       title: title.trim(),
       description: description.trim() || undefined,
       start: localToIsoString(allDay ? `${start.slice(0, 10)}T00:00` : start) as unknown as Date,
@@ -449,6 +453,10 @@ export const CreateEventModal = ({ open, groupId, initialDateIso, event: eventPr
           </Box>
         </DialogTitle>
         <DialogContent sx={{ display: "flex", flexDirection: "column", gap: 2, pt: 1 }}>
+          {!groupId && <TextField fullWidth size="small" select label="Applies to" value={selectedGroupId} onChange={(e) => setSelectedGroupId(e.target.value)}>
+            <MenuItem value="whole_church">Whole Church — all members</MenuItem>
+            {groups.map((group) => <MenuItem key={group.id} value={group.id}>{group.name}</MenuItem>)}
+          </TextField>}
           <TextField
             fullWidth
             size="small"
