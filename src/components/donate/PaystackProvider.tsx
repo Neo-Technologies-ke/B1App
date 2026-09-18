@@ -1,6 +1,7 @@
 "use client";
 
 import React, { forwardRef, useEffect, useImperativeHandle, useState } from "react";
+import { Elements } from "@stripe/react-stripe-js";
 import { Alert, Box, Checkbox, FormControlLabel, FormGroup, Grid, Stack, TextField, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
 import ReCAPTCHA from "react-google-recaptcha";
 import { ApiHelper, CurrencyHelper, ErrorMessages, InputBox, Locale } from "@churchapps/apphelper";
@@ -382,6 +383,7 @@ export const PaystackProvider: PaymentProvider = {
   // No saved-card vault or recurring billing in this integration — every donation
   // goes through the Inline popup, which is also the only supported member-entry flow.
   capabilities: { savedCard: false, savedBank: false, guestAch: false, memberNewCard: false, recurring: false, editRecurring: false },
+  MemberWrapper: ({ stripePromise, children }) => <Elements stripe={stripePromise ?? null}>{children}</Elements>,
   MemberEntry: PaystackMemberEntry,
   buildChargeRequest: (ctx, token) => ({ endpoint: "/donate/charge", body: buildPaystackChargeBody(ctx, token) }),
   GuestForm: PaystackGuestForm

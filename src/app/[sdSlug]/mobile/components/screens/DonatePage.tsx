@@ -38,7 +38,6 @@ import type {
   DonationInterface,
   PersonInterface
 } from "@churchapps/helpers";
-import { CampaignProgress } from "@/components/donate/CampaignProgress";
 import "@/components/donate/PaystackProvider";
 import UserContext from "@/context/UserContext";
 import { ConfigurationInterface } from "@/helpers/ConfigHelper";
@@ -285,12 +284,6 @@ function DonatePageInner({ config }: Props) {
             </>
           )}
         </Box>
-
-        {church?.id && (
-          <Box sx={{ mb: `${mobileTheme.spacing.lg}px` }}>
-            <CampaignProgress churchId={church.id} isAuthenticated={isAuthenticated} currency={pageCurrency} />
-          </Box>
-        )}
 
         {isAuthenticated && (
           <Box sx={{ mb: `${mobileTheme.spacing.lg}px` }}>
