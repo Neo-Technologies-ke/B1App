@@ -99,7 +99,8 @@ function buildPaystackChargeBody(ctx: ChargeContext, token: PaymentToken) {
 // leaves the page (no redirect/session-restore workaround needed).
 const PaystackMemberEntry = forwardRef<MemberEntryHandle, MemberEntryProps>(({ gateway, getContext }, ref) => {
   const [paymentType, setPaymentType] = useState<"card" | "mpesa">("mpesa");
-  const [phone, setPhone] = useState("");
+  const testMode = ["staging", "test", "sandbox"].includes(String(gateway.environment || "").toLowerCase());
+  const [phone, setPhone] = useState(testMode ? "+254710000000" : "");
   const [waiting, setWaiting] = useState(false);
   useImperativeHandle(ref, () => ({
     tokenize: async (): Promise<PaymentToken> => {
@@ -133,7 +134,7 @@ const PaystackMemberEntry = forwardRef<MemberEntryHandle, MemberEntryProps>(({ g
     </ToggleButtonGroup>
     {paymentType === "mpesa" ? <>
       <TextField fullWidth label="M-PESA phone number" placeholder="0710000000" value={phone} onChange={(e) => setPhone(e.target.value)} disabled={waiting} inputProps={{ inputMode: "tel" }} />
-      <Typography variant="body2" color="text.secondary">{waiting ? "Check your phone and enter your M-PESA PIN to approve the payment…" : "An M-PESA payment prompt will be sent to this phone."}</Typography>
+      <Typography variant="body2" color="text.secondary">{waiting ? "Check your phone and enter your M-PESA PIN to approve the payment…" : testMode ? "Paystack test mode uses +254710000000 and does not send a real handset prompt." : "An M-PESA payment prompt will be sent to this phone."}</Typography>
     </> : <Typography variant="body2" color="text.secondary">Your card details will be collected securely in the Paystack checkout window.</Typography>}
   </Stack>;
 });
@@ -160,7 +161,8 @@ const PaystackGuestForm: React.FC<GuestFormProps> = ({ mainContainerCssProps, sh
   const [processing, setProcessing] = useState(false);
   const [notes, setNotes] = useState("");
   const [paymentType, setPaymentType] = useState<"card" | "mpesa">("mpesa");
-  const [phone, setPhone] = useState("");
+  const testMode = ["staging", "test", "sandbox"].includes(String(props.gateway?.environment || "").toLowerCase());
+  const [phone, setPhone] = useState(testMode ? "+254710000000" : "");
   const [coverFees, setCoverFees] = useState(false);
   const [captchaResponse, setCaptchaResponse] = useState("");
   const [church, setChurch] = useState<{ name?: string; subDomain?: string } | null>(null);
@@ -335,7 +337,7 @@ const PaystackGuestForm: React.FC<GuestFormProps> = ({ mainContainerCssProps, sh
         <ToggleButtonGroup value={paymentType} exclusive fullWidth size="small" onChange={(_, value) => value && setPaymentType(value)}>
           <ToggleButton value="mpesa">M-PESA</ToggleButton><ToggleButton value="card">Card</ToggleButton>
         </ToggleButtonGroup>
-        {paymentType === "mpesa" ? <TextField fullWidth sx={{ mt: 2 }} label="M-PESA phone number" placeholder="0710000000" value={phone} onChange={(e) => setPhone(e.target.value)} inputProps={{ inputMode: "tel" }} helperText="An M-PESA prompt will be sent to this phone." /> : <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>{Locale.label("donation.paystack.popupHint")}</Typography>}
+        {paymentType === "mpesa" ? <TextField fullWidth sx={{ mt: 2 }} label="M-PESA phone number" placeholder="0710000000" value={phone} onChange={(e) => setPhone(e.target.value)} inputProps={{ inputMode: "tel" }} helperText={testMode ? "Official Paystack test number; no real handset prompt is sent." : "An M-PESA prompt will be sent to this phone."} /> : <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>{Locale.label("donation.paystack.popupHint")}</Typography>}
       </Box>
       {allowSingleGift && funds.length > 0 && showFundSelector && (
         <>
