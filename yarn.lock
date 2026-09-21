@@ -256,7 +256,7 @@ __metadata:
 
 "@churchapps/apphelper@patch:@churchapps/apphelper@npm%3A0.17.0#~/.yarn/patches/@churchapps-apphelper-npm-0.17.0-3bb93f10a4.patch":
   version: 0.17.0
-  resolution: "@churchapps/apphelper@patch:@churchapps/apphelper@npm%3A0.17.0#~/.yarn/patches/@churchapps-apphelper-npm-0.17.0-3bb93f10a4.patch::version=0.17.0&hash=c56f21"
+  resolution: "@churchapps/apphelper@patch:@churchapps/apphelper@npm%3A0.17.0#~/.yarn/patches/@churchapps-apphelper-npm-0.17.0-3bb93f10a4.patch::version=0.17.0&hash=117931"
   dependencies:
     "@emotion/cache": "npm:^11.14.0"
     "@emotion/react": "npm:^11.14.0"
@@ -317,7 +317,7 @@ __metadata:
       optional: true
     react-google-recaptcha:
       optional: true
-  checksum: 10c0/63008acc55727c5ad6eab37265ec1dbfd46a0033bd917e259b89919c6c5426871fb3ca982dd71c9929048354561eab7f65d22d8e2dc10a30806d43ca1e03120c
+  checksum: 10c0/3136d424b5ef0a9ee9efb711207e99619b959bdf3a01161558e1bb8d665f474b4da15dd5abfd715d0371ae9a6dc26b2bf2abc4acd36583990055caf3e605f295
   languageName: node
   linkType: hard
 
