@@ -180,6 +180,15 @@ export const MobileLoginScreen = ({ config }: Props) => {
     setLoading(true);
     try {
       const data: LoginResponseInterface = await ApiHelper.postAnonymous("/users/login", payload, "MembershipApi");
+      const forced = data as any;
+      if (forced?.mustChangePassword && forced?.authGuid) {
+        setAuthGuid(forced.authGuid);
+        if (forced.user?.firstName) setSetPasswordFirstName(forced.user.firstName);
+        if (forced.user?.email) setEmail(forced.user.email);
+        setMode("setPassword");
+        showInfo("Your password was reset. Please set a new password.");
+        return true;
+      }
       if (data?.user != null) {
         await hydrateFromLoginResponse(data);
         if (returnUrl.startsWith("http")) window.location.href = returnUrl;

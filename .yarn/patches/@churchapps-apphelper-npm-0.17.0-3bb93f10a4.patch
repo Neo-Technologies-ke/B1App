@@ -11,3 +11,22 @@ index da7558570f06ad1a6517d44ed0e06e19650576cf..6a555bae7ef783e4a3cb0b242eae1468
                                                          setUseNewCard(false);
                                                          const d = { ...donation };
                                                          d.id = availablePaymentMethods[0].id;
+diff --git a/dist/login/LoginPage.js b/dist/login/LoginPage.js
+index dd43f895c3510a87e7e31309659078a8737335bf..d5b11f858a6588bf59b656bc6566f1a256d8e190 100644
+--- a/dist/login/LoginPage.js
++++ b/dist/login/LoginPage.js
+@@ -95,6 +95,14 @@ const LoginPageContent = ({ showLogo = true, loginContainerCssProps, ...props })
+         }
+     };
+     const handleLoginSuccess = async (resp) => {
++        if (resp?.mustChangePassword && resp?.authGuid) {
++            setVerifiedAuth(resp.authGuid);
++            if (resp.user?.email)
++                setVerifiedEmail(resp.user.email);
++            setShowForgot(false);
++            setShowRegister(false);
++            return;
++        }
+         userJwtBackup = resp.user.jwt;
+         setUserJwt(userJwtBackup);
+         ApiHelper.setDefaultPermissions(resp.user.jwt);
