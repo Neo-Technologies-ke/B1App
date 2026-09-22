@@ -1,3 +1,25 @@
+diff --git a/dist/donations/components/FundDonation.js b/dist/donations/components/FundDonation.js
+index 58c47d0612d70d0012c77ff4ef9a3c538bac8684..064770d06a8084d89366c8d9faa61a3029b42fcd 100644
+--- a/dist/donations/components/FundDonation.js
++++ b/dist/donations/components/FundDonation.js
+@@ -1,7 +1,7 @@
+ "use client";
+ import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-runtime";
+ import { CurrencyHelper } from "@churchapps/helpers";
+-import { FormControl, Grid, Icon, InputLabel, MenuItem, Select, TextField, Typography } from "@mui/material";
++import { FormControl, Grid, Icon, InputAdornment, InputLabel, MenuItem, Select, TextField, Typography } from "@mui/material";
+ import { Locale } from "../helpers";
+ export const FundDonation = (props) => {
+     const getOptions = () => {
+@@ -24,6 +24,6 @@ export const FundDonation = (props) => {
+         }
+         props.updatedFunction(fd, props.index);
+     };
+-    return (_jsx(_Fragment, { children: _jsxs(Grid, { container: true, spacing: 3, children: [_jsx(Grid, { size: { xs: 12, md: props.hideFundSelect ? 12 : 6 }, children: _jsx(TextField, { fullWidth: true, name: "amount", label: Locale.label("donation.fundDonations.amount"), type: "number", disabled: props.params?.amount && props.params.amount !== "", "aria-label": "amount", lang: "en-150", value: props.fundDonation.amount || "", onChange: handleChange, InputProps: { startAdornment: _jsx(Icon, { children: _jsx(Typography, { children: props.currency ? CurrencyHelper.getCurrencySymbol(props.currency) : "$" }) }) } }) }), !props.hideFundSelect && (_jsx(Grid, { size: { xs: 12, md: 6 }, children: _jsxs(FormControl, { fullWidth: true, children: [_jsx(InputLabel, { children: Locale.label("donation.fundDonations.fund") }), _jsx(Select, { fullWidth: true, label: Locale.label("donation.fundDonations.fund"), name: "fund", "aria-label": "fund", value: props.fundDonation.fundId, onChange: handleChange, children: getOptions() })] }) }))] }) }));
++    return (_jsx(_Fragment, { children: _jsxs(Grid, { container: true, spacing: 3, children: [_jsx(Grid, { size: { xs: 12, md: props.hideFundSelect ? 12 : 6 }, children: _jsx(TextField, { fullWidth: true, name: "amount", label: Locale.label("donation.fundDonations.amount"), type: "number", disabled: props.params?.amount && props.params.amount !== "", "aria-label": "amount", lang: "en-150", value: props.fundDonation.amount || "", onChange: handleChange, InputProps: { startAdornment: _jsx(InputAdornment, { position: "start", children: _jsx(Typography, { children: props.currency ? CurrencyHelper.getCurrencySymbol(props.currency) : "$" }) }) } }) }), !props.hideFundSelect && (_jsx(Grid, { size: { xs: 12, md: 6 }, children: _jsxs(FormControl, { fullWidth: true, children: [_jsx(InputLabel, { children: Locale.label("donation.fundDonations.fund") }), _jsx(Select, { fullWidth: true, label: Locale.label("donation.fundDonations.fund"), name: "fund", "aria-label": "fund", value: props.fundDonation.fundId, onChange: handleChange, children: getOptions() })] }) }))] }) }));
+ };
+ //# sourceMappingURL=FundDonation.js.map
+\ No newline at end of file
 diff --git a/dist/donations/components/MultiGatewayDonationForm.js b/dist/donations/components/MultiGatewayDonationForm.js
 index da7558570f06ad1a6517d44ed0e06e19650576cf..6a555bae7ef783e4a3cb0b242eae14684774fed1 100644
 --- a/dist/donations/components/MultiGatewayDonationForm.js
