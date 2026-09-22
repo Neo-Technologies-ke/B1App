@@ -137,7 +137,7 @@ const PaystackMemberEntry = forwardRef<MemberEntryHandle, PaystackMemberEntryPro
     {paymentType === "mpesa" ? <>
       <TextField fullWidth label="M-PESA phone number" placeholder="0710000000" value={phone} onChange={(e) => setPhone(e.target.value)} disabled={waiting} inputProps={{ inputMode: "tel" }} />
       <Typography variant="body2" color="text.secondary">{waiting ? "Check your phone and enter your M-PESA PIN to approve the payment…" : testMode ? "Paystack test mode uses +254710000000 and does not send a real handset prompt." : "An M-PESA payment prompt will be sent to this phone."}</Typography>
-    </> : <Typography variant="body2" color="text.secondary">Your card details will be collected securely in the Paystack checkout window.</Typography>}
+    </> : <Typography variant="body2" color="text.secondary">Click <b>Preview Donation</b>, then enter your card details in the secure Paystack checkout window.</Typography>}
   </Stack>;
 });
 PaystackMemberEntry.displayName = "PaystackMemberEntry";
@@ -339,7 +339,7 @@ const PaystackGuestForm: React.FC<GuestFormProps> = ({ mainContainerCssProps, sh
         <ToggleButtonGroup value={paymentType} exclusive fullWidth size="small" onChange={(_, value) => value && setPaymentType(value)}>
           <ToggleButton value="mpesa">M-PESA</ToggleButton><ToggleButton value="card">Card</ToggleButton>
         </ToggleButtonGroup>
-        {paymentType === "mpesa" ? <TextField fullWidth sx={{ mt: 2 }} label="M-PESA phone number" placeholder="0710000000" value={phone} onChange={(e) => setPhone(e.target.value)} inputProps={{ inputMode: "tel" }} helperText={testMode ? "Official Paystack test number; no real handset prompt is sent." : "An M-PESA prompt will be sent to this phone."} /> : <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>{Locale.label("donation.paystack.popupHint")}</Typography>}
+        {paymentType === "mpesa" ? <TextField fullWidth sx={{ mt: 2 }} label="M-PESA phone number" placeholder="0710000000" value={phone} onChange={(e) => setPhone(e.target.value)} inputProps={{ inputMode: "tel" }} helperText={testMode ? "Official Paystack test number; no real handset prompt is sent." : "An M-PESA prompt will be sent to this phone."} /> : <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>Click <b>Preview Donation</b>, then enter your card details in the secure Paystack checkout window.</Typography>}
       </Box>
       {allowSingleGift && funds.length > 0 && showFundSelector && (
         <>
