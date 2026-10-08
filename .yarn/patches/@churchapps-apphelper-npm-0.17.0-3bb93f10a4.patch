@@ -52,3 +52,39 @@ index dd43f895c3510a87e7e31309659078a8737335bf..d5b11f858a6588bf59b656bc6566f1a2
          userJwtBackup = resp.user.jwt;
          setUserJwt(userJwtBackup);
          ApiHelper.setDefaultPermissions(resp.user.jwt);
+diff --git a/dist/website/components/elementTypes/SermonElement.js b/dist/website/components/elementTypes/SermonElement.js
+index 313e64eb8bca1a4dd32c8e7376e0e0d39928f91a..fc2eeae94978a1ed7b8afc04071ffb83c4fc49fd 100644
+--- a/dist/website/components/elementTypes/SermonElement.js
++++ b/dist/website/components/elementTypes/SermonElement.js
+@@ -9,6 +9,13 @@ import { ApiHelper } from "../../..";
+ import { AppearanceHelper } from "../../..";
+ import { Loading } from "../../..";
+ import { EnvironmentHelper } from "../../helpers/EnvironmentHelper";
++const getYoutubeThumbnail = (url) => {
++    if (!url)
++        return null;
++    const m = url.match(/(?:youtube\.com\/(?:embed\/|watch\?v=|shorts\/)|youtu\.be\/)([\w-]{6,})/);
++    return m ? `https://img.youtube.com/vi/${m[1]}/hqdefault.jpg` : null;
++};
++
+ export const SermonElement = ({ churchId, appearance }) => {
+     const [isLoading, setIsLoading] = useState(true);
+     const [isActive, setIsActive] = useState("playlists");
+@@ -41,13 +48,13 @@ export const SermonElement = ({ churchId, appearance }) => {
+                             setIsActive("sermons");
+                         }, "data-testid": "sermon-topics-button", children: activePlaylist?.title })), activeVideo?.title && (_jsx(Button, { size: "small", startIcon: _jsx(LiveTvIcon, {}), variant: isActive === "video" ? "contained" : "text", color: isActive === "video" ? "primary" : "secondary", sx: { borderRadius: 3 }, onClick: () => {
+                             setIsActive("video");
+-                        }, "data-testid": "sermon-watch-button", children: activeVideo?.title }))] }), _jsxs("div", { style: { marginTop: 15 }, children: [isActive === "playlists" && (_jsx(Grid, { container: true, spacing: 3, style: { paddingBottom: 20, paddingTop: 20 }, children: playlists && Array.isArray(playlists) && playlists.map((item) => (_jsx(Grid, { size: { md: 4, xs: 12, sm: 6 }, children: _jsx(Card, { sx: { maxWidth: 635, borderRadius: 0, boxShadow: 5, cursor: "pointer" }, onClick: () => {
++                        }, "data-testid": "sermon-watch-button", children: activeVideo?.title }))] }), _jsxs("div", { style: { marginTop: 15 }, children: [isActive === "playlists" && (_jsx(Grid, { container: true, spacing: 3, style: { paddingBottom: 20, paddingTop: 20 }, children: playlists && Array.isArray(playlists) && playlists.map((item) => (_jsx(Grid, { size: { md: 3, xs: 12, sm: 6 }, children: _jsx(Card, { sx: { maxWidth: 635, borderRadius: 0, boxShadow: 5, cursor: "pointer" }, onClick: () => {
+                                     setActiveplaylist(item);
+                                     setIsActive("sermons");
+                                     getFilteredData(item.id);
+-                                }, children: _jsxs(CardContent, { children: [_jsx(Box, { component: "img", alt: item?.title, src: item.thumbnail ? item.thumbnail : AppearanceHelper.getLogo(appearance, "/images/logo.png", "/images/logo.png", "#FFF"), height: 190, minHeight: { xs: 230, sm: "auto" }, sx: { objectFit: "cover", objectPosition: "center" } }), _jsx(Typography, { component: "h3", sx: { fontSize: "24px", fontWeight: 500, marginBottom: "2px", marginTop: "6px", color: "#333", overflowY: "hidden", maxHeight: 30 }, children: item.title })] }) }, item.id) }, item.id))) })), isActive === "sermons" && activeSermons && (_jsx(Grid, { container: true, spacing: 3, style: { paddingBottom: 20, paddingTop: 20 }, children: activeSermons && Array.isArray(activeSermons) && activeSermons.map((item) => (_jsx(Grid, { size: { md: 4, xs: 12 }, children: _jsx(Card, { sx: { maxWidth: 635, borderRadius: 0, boxShadow: 5, cursor: "pointer" }, onClick: () => {
++                                }, children: _jsxs(CardContent, { children: [_jsx(Box, { component: "img", alt: item?.title, src: item.thumbnail ? item.thumbnail : (getYoutubeThumbnail(item.videoUrl) || AppearanceHelper.getLogo(appearance, "/images/logo.png", "/images/logo.png", "#FFF")), height: 140, width: "100%", sx: { objectFit: "cover", objectPosition: "center", aspectRatio: "16/9", height: "auto" } }), _jsx(Typography, { component: "h3", sx: { fontSize: "24px", fontWeight: 500, marginBottom: "2px", marginTop: "6px", color: "#333", overflowY: "hidden", maxHeight: 30 }, children: item.title })] }) }, item.id) }, item.id))) })), isActive === "sermons" && activeSermons && (_jsx(Grid, { container: true, spacing: 3, style: { paddingBottom: 20, paddingTop: 20 }, children: activeSermons && Array.isArray(activeSermons) && activeSermons.map((item) => (_jsx(Grid, { size: { md: 3, xs: 12, sm: 6 }, children: _jsx(Card, { sx: { maxWidth: 635, borderRadius: 0, boxShadow: 5, cursor: "pointer" }, onClick: () => {
+                                     setIsActive("video");
+                                     setActiveVideo(item);
+-                                }, children: _jsxs(CardContent, { children: [_jsx(Box, { component: "img", alt: item?.title, src: item.thumbnail ? item.thumbnail : (activePlaylist?.thumbnail ? activePlaylist.thumbnail : AppearanceHelper.getLogo(appearance, "/images/logo.png", "/images/logo.png", "#FFF")), height: 190, minHeight: { xs: 230, sm: "auto" }, sx: { objectFit: "cover", objectPosition: "center" } }), _jsx(Typography, { component: "h3", sx: { fontSize: "24px", fontWeight: 500, marginBottom: "2px", marginTop: "6px", color: "#333", overflowY: "hidden", maxHeight: 30 }, children: item.title })] }) }, item.id) }, item.id))) })), isActive === "video" && activeVideo && activeVideo.videoUrl && (_jsx("div", { className: "videoWrapper", children: _jsx("iframe", { src: activeVideo.videoUrl.replace("controls=0", "controls=1"), allowFullScreen: true, style: { border: 0 } }) }))] })] }));
++                                }, children: _jsxs(CardContent, { children: [_jsx(Box, { component: "img", alt: item?.title, src: item.thumbnail ? item.thumbnail : (getYoutubeThumbnail(item.videoUrl) || (activePlaylist?.thumbnail ? activePlaylist.thumbnail : AppearanceHelper.getLogo(appearance, "/images/logo.png", "/images/logo.png", "#FFF"))), height: 140, width: "100%", sx: { objectFit: "cover", objectPosition: "center", aspectRatio: "16/9", height: "auto" } }), _jsx(Typography, { component: "h3", sx: { fontSize: "24px", fontWeight: 500, marginBottom: "2px", marginTop: "6px", color: "#333", overflowY: "hidden", maxHeight: 30 }, children: item.title })] }) }, item.id) }, item.id))) })), isActive === "video" && activeVideo && activeVideo.videoUrl && (_jsx("div", { className: "videoWrapper", children: _jsx("iframe", { src: activeVideo.videoUrl.replace("controls=0", "controls=1"), allowFullScreen: true, style: { border: 0 } }) }))] })] }));
+ };
+ //# sourceMappingURL=SermonElement.js.map
+\ No newline at end of file
