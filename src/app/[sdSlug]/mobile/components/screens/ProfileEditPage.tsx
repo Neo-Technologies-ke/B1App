@@ -135,7 +135,9 @@ const resizePhotoToDataUrl = async (file: File): Promise<string> => new Promise(
         sy = Math.round((img.height - sh) / 2);
       }
       ctx.drawImage(img, sx, sy, sw, sh, 0, 0, targetW, targetH);
-      resolve(canvas.toDataURL("image/jpeg", 0.8));
+      // PNG keeps PersonHelper.getPhotoUrl treating the value as a data-url;
+      // a jpeg data-url fails its check and renders broken until reload.
+      resolve(canvas.toDataURL("image/png"));
     };
     img.src = src;
   };
