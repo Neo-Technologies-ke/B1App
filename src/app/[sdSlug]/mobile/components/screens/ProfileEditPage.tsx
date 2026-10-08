@@ -309,6 +309,22 @@ export const ProfileEditPage = ({ config }: Props) => {
       const id = person.id || UserHelper.currentUserChurch?.person?.id;
       const displayName = [person.name?.first, person.name?.last].filter(Boolean).join(" ");
 
+      // Photos apply immediately on save — they are not gated behind the
+      // approval workflow. Save the person record directly with the new
+      // photo data-url; the API stores it in file storage right away.
+      const photoChanged = modifiedFields.has("photo");
+      let photoSaved = false;
+      if (photoChanged) {
+        try {
+          await ApiHelper.post("/people", [person], "MembershipApi");
+          photoSaved = true;
+        } catch {
+          // Fall back to the directory-update task — the API applies photo
+          // changes immediately there as well.
+        }
+      }
+      const approvalChanges = profileChanges.filter((c) => c.field !== "photo" || !photoSaved);
+
       const task: any = {
         dateCreated: new Date(),
         associatedWithType: "person",
@@ -319,29 +335,29 @@ export const ProfileEditPage = ({ config }: Props) => {
         createdByLabel: displayName,
         title: `Profile changes for ${displayName || "member"}`,
         status: "Open",
-        data: JSON.stringify(profileChanges)
+        data: JSON.stringify(approvalChanges)
       };
 
-      if (churchId) {
-        try {
-          const publicSettings = await ApiHelper.get(`/settings/public/${churchId}`, "MembershipApi");
-          if (publicSettings?.directoryApprovalGroupId) {
-            const group = await ApiHelper.get(`/groups/${publicSettings.directoryApprovalGroupId}`, "MembershipApi");
-            task.assignedToType = "group";
-            task.assignedToId = publicSettings.directoryApprovalGroupId;
-            task.assignedToLabel = group?.name;
-          }
-        } catch {
+      if (approvalChanges.length > 0) {
+        if (churchId) {
+          try {
+            const publicSettings = await ApiHelper.get(`/settings/public/${churchId}`, "MembershipApi");
+            if (publicSettings?.directoryApprovalGroupId) {
+              const group = await ApiHelper.get(`/groups/${publicSettings.directoryApprovalGroupId}`, "MembershipApi");
+              task.assignedToType = "group";
+              task.assignedToId = publicSettings.directoryApprovalGroupId;
+              task.assignedToLabel = group?.name;
+            }
+          } catch {
 
+          }
         }
+
+        await ApiHelper.post("/tasks?type=directoryUpdate", [task], "DoingApi");
       }
 
-      await ApiHelper.post("/tasks?type=directoryUpdate", [task], "DoingApi");
-
-      // The directoryUpdate handler uploads the photo to FileStorage at submit
-      // time (before approval), so the canonical image URL already serves the
-      // new bytes. Refresh the local person record so the drawer/avatar pick
-      // up the new photo without requiring a full sign-out.
+      // Refresh the local person record so the drawer/avatar pick up the new
+      // photo without requiring a full sign-out.
       if (id) {
         try {
           const fresh = await ApiHelper.get("/people/" + id, "MembershipApi");
@@ -355,7 +371,10 @@ export const ProfileEditPage = ({ config }: Props) => {
       setInitial(JSON.parse(JSON.stringify(person)));
       setModifiedFields(new Set());
       setPendingFamilyMembers([]);
-      setSnack({ open: true, msg: Locale.label("mobile.screens.changesSubmittedForApproval"), severity: "success" });
+      const successMsg = approvalChanges.length > 0
+        ? Locale.label("mobile.screens.changesSubmittedForApproval")
+        : "Photo updated successfully.";
+      setSnack({ open: true, msg: successMsg, severity: "success" });
 
       setTimeout(() => {
         try { router.back(); } catch { }
