@@ -31,7 +31,7 @@
       ]
     },
     "incremental": true,
-    "ignoreDeprecations": "6.0",
+    "ignoreDeprecations": "5.0",
     "tsBuildInfoFile": ".next/tsconfig.tsbuildinfo",
     "plugins": [
       {

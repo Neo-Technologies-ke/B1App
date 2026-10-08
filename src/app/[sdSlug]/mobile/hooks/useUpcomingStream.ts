@@ -9,6 +9,7 @@ export interface StreamService {
   serviceTime?: string;
   earlyStart?: string;
   label?: string;
+  recurring?: boolean;
   sermon?: { title?: string; description?: string; duration?: number };
 }
 
@@ -63,12 +64,18 @@ export function useUpcomingStream(keyName?: string) {
     let best: { service: StreamService; start: Date; end: Date } | null = null;
     for (const s of services) {
       if (!s.serviceTime) continue;
-      const start = new Date(s.serviceTime);
+      let start = new Date(s.serviceTime);
       if (isNaN(start.getTime())) continue;
+      const runSeconds = s.sermon?.duration || 5400;
+      // Weekly recurring services keep a seed date in the past — roll it forward
+      // to the next occurrence instead of treating the service as ended.
+      if (s.recurring) {
+        const weekMs = 7 * 24 * 60 * 60 * 1000;
+        while (start.getTime() + runSeconds * 1000 <= now.getTime()) start = new Date(start.getTime() + weekMs);
+      }
       const earlySeconds = getSecondsFromDisplay(s.earlyStart);
       const liveStart = new Date(start.getTime() - earlySeconds * 1000);
 
-      const runSeconds = s.sermon?.duration || 5400;
       const end = new Date(start.getTime() + runSeconds * 1000);
       if (end <= now) continue;
       if (!best || liveStart < new Date(best.start.getTime() - getSecondsFromDisplay(best.service.earlyStart) * 1000)) {

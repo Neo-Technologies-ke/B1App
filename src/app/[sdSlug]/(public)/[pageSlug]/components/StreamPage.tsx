@@ -1,6 +1,7 @@
 "use client";
 
 import { LiveStream } from "@/components/video/LiveStream";
+import { NextServiceCountdown } from "@/components/video/NextServiceCountdown";
 import { ConfigurationInterface } from "@/helpers/ConfigHelper";
 import { Locale } from "@churchapps/apphelper";
 import { Container } from "@mui/material";
@@ -11,13 +12,12 @@ type Props = {
 };
 
 export function StreamPage(props: Props) {
-
-  const day = 1; // getDayOfYear();
+  const keyName = props.config?.church?.subDomain;
 
   return (
     <Container>
       <h1 style={{ textAlign: "center" }}>{Locale.label("pageSlug.liveStream")}</h1>
-      <LiveStream includeHeader={false} includeInteraction={true} keyName={props.config?.church?.subDomain} appearance={props.config?.appearance} offlineContent={null} />
+      <LiveStream includeHeader={false} includeInteraction={true} keyName={keyName} appearance={props.config?.appearance} offlineContent={<NextServiceCountdown keyName={keyName} />} />
     </Container>
   );
 }

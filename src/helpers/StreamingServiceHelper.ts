@@ -26,9 +26,18 @@ export class StreamingServiceHelper {
 
   static updateServiceTimes(config: StreamConfigInterface) {
     if (config.services != null) {
+      const now = new Date();
+      const weekMs = 7 * 24 * 60 * 60 * 1000;
       for (let i = 0; i < config.services.length; i++) {
         const s = config.services[i];
-        s.localCountdownTime = new Date(new Date(s.serviceTime).getTime());
+        let serviceTime = new Date(s.serviceTime);
+        // Weekly recurring services keep the stored seed date in the past.
+        // Roll it forward a week at a time until the end of the next occurrence.
+        if (s.recurring && !isNaN(serviceTime.getTime())) {
+          const durationMs = (s.sermon?.duration || 5400) * 1000;
+          while (serviceTime.getTime() + durationMs <= now.getTime()) serviceTime = new Date(serviceTime.getTime() + weekMs);
+        }
+        s.localCountdownTime = new Date(serviceTime.getTime());
         s.localStartTime = new Date(s.localCountdownTime.getTime());
         s.localStartTime.setSeconds(s.localStartTime.getSeconds() - this.getSeconds(s.earlyStart));
         s.localEndTime = new Date(s.localStartTime.getTime());
