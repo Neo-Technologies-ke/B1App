@@ -1248,7 +1248,9 @@ export const ProfileEditPage = ({ config }: Props) => {
             </Typography>
           </Box>
           <Typography sx={{ fontSize: 12, color: tc.textMuted, mb: 2 }}>
-            Review your changes before submitting for approval.
+            {profileChanges.every((c) => c.field === "photo")
+              ? "Your new photo will be applied immediately — no approval needed."
+              : "Review your changes before submitting for approval. Photos are applied immediately."}
           </Typography>
           <Box sx={{ maxHeight: 240, overflowY: "auto", mb: 2 }}>
             {profileChanges.map((c, i) => (
@@ -1303,7 +1305,7 @@ export const ProfileEditPage = ({ config }: Props) => {
                 "&.Mui-disabled": { bgcolor: tc.border, color: tc.textHint }
               }}
             >
-              {saving ? <CircularProgress size={20} sx={{ color: "#FFF" }} /> : "Submit for Approval"}
+              {saving ? <CircularProgress size={20} sx={{ color: "#FFF" }} /> : (profileChanges.every((c) => c.field === "photo") ? "Save Photo" : "Submit for Approval")}
             </Button>
           </Box>
         </Box>
