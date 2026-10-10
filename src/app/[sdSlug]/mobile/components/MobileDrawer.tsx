@@ -33,6 +33,7 @@ export const MobileDrawer = ({ links, onNavigate }: Props) => {
   const photoUrl = context?.person?.photo ? PersonHelper.getPhotoUrl(context.person) : undefined;
   const firstName = context?.person?.name?.first || context?.user?.firstName || "";
   const lastName = context?.person?.name?.last || context?.user?.lastName || "";
+  const displayName = context?.person?.name?.display || `${firstName} ${lastName}`.trim();
   const initials = getInitials({ name: { first: firstName, last: lastName } });
   const isFullAdmin = UserHelper.checkAccess(Permissions.contentApi.content.edit);
   const isScopedGroupAdmin = !isFullAdmin && (
@@ -86,7 +87,7 @@ export const MobileDrawer = ({ links, onNavigate }: Props) => {
             )}
             <Box sx={{ flex: 1, minWidth: 0 }}>
               <Typography noWrap sx={{ fontSize: 18, fontWeight: 600, color: tc.text, mb: 0.5 }}>
-                {firstName} {lastName}
+                {displayName}
               </Typography>
               <Box
                 component="button"

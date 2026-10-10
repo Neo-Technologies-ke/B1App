@@ -213,7 +213,9 @@ export const CommunityPage = ({ config: _config }: Props) => {
 
   const renderCard = (p: PersonInterface) => {
     const first = p.name?.first || "";
+    const middle = p.name?.middle || "";
     const last = p.name?.last || "";
+    const firstLine = [first, middle].filter(Boolean).join(" ");
 
     return (
       <Box
@@ -248,7 +250,7 @@ export const CommunityPage = ({ config: _config }: Props) => {
               component="span"
               sx={{ fontSize: 16, fontWeight: 600, color: tc.text, lineHeight: 1.3, mr: last ? "4px" : 0 }}
             >
-              {first}
+              {firstLine}
             </Typography>
             {last && (
               <Typography
