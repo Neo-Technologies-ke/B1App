@@ -28,6 +28,7 @@ import type { PersonInterface, VisibilityPreferenceInterface } from "@churchapps
 import { ConfigurationInterface } from "@/helpers/ConfigHelper";
 import UserContext from "@/context/UserContext";
 import { mobileTheme } from "../mobileTheme";
+import { NotificationPermissionBanner } from "../NotificationPermissionBanner";
 
 interface Props {
   config?: ConfigurationInterface;
@@ -1054,6 +1055,11 @@ export const ProfileEditPage = ({ config }: Props) => {
             {savingPassword ? <CircularProgress size={20} sx={{ color: "#FFF" }} /> : "Save"}
           </Button>
         </Box>
+      </Box>
+
+      <Box sx={{ mt: `${mobileTheme.spacing.md}px` }}>
+        {sectionHeader("Notifications", "notifications")}
+        <NotificationPermissionBanner enabled={!!UserHelper.currentUserChurch?.jwt} inset />
       </Box>
 
       <Box sx={{ height: 24 }} />

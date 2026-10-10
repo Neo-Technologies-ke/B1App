@@ -9,9 +9,10 @@ import { WebPushHelper } from "@/helpers";
 
 interface Props {
   enabled: boolean;
+  inset?: boolean;
 }
 
-export const NotificationPermissionBanner = ({ enabled }: Props) => {
+export const NotificationPermissionBanner = ({ enabled, inset }: Props) => {
   const router = useRouter();
   const tc = mobileTheme.colors;
   const { diagnostics, loading, refresh } = useNotificationDiagnostics(enabled);
@@ -81,8 +82,8 @@ export const NotificationPermissionBanner = ({ enabled }: Props) => {
   return (
     <Box
       sx={{
-        mx: `${mobileTheme.spacing.md}px`,
-        mb: 2.5,
+        mx: inset ? 0 : `${mobileTheme.spacing.md}px`,
+        mb: inset ? 0 : 2.5,
         p: "14px 16px",
         borderRadius: `${mobileTheme.radius.lg}px`,
         bgcolor: tone.background,

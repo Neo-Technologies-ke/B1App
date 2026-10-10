@@ -8,7 +8,6 @@ import { Locale } from "@churchapps/apphelper";
 import UserContext from "@/context/UserContext";
 import { ConfigurationInterface } from "@/helpers/ConfigHelper";
 import { mobileTheme, linkTypeToIcon, linkTypeToRoute, linkTypeToTagline } from "./mobileTheme";
-import { NotificationPermissionBanner } from "./NotificationPermissionBanner";
 import { filterVisibleLinks, useChurchLinks } from "../hooks/useConfig";
 import { useEngagementSort } from "../hooks/useEngagementSort";
 import { EmptyDashboardPlaceholder } from "./EmptyDashboardPlaceholder";
@@ -147,8 +146,6 @@ export const DashboardPage = ({ config }: Props) => {
 
   return (
     <Box sx={{ bgcolor: tc.background, minHeight: "100%", pt: 2, pb: 3 }}>
-      <NotificationPermissionBanner enabled={!!jwt} />
-
       {(firstName || todayLabel) && (
         <Box sx={{ px: `${mobileTheme.spacing.md}px`, mb: 2.5 }}>
           <Typography sx={{ fontSize: 24, fontWeight: 700, color: tc.text, lineHeight: 1.2 }}>
