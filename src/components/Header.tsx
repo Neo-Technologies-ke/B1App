@@ -93,8 +93,18 @@ export function Header(props: Props) {
   }, [props.config?.appearance?.logoLight, props.config?.appearance?.logoDark, transparent]);
 
   const memberPortal = <MenuItem onClick={() => { redirect("/mobile"); }} dense data-testid="member-portal-menu-item" aria-label={Locale.label("header.goMemberPortal")}><Icon sx={{ marginRight: "10px", fontSize: "20px !important" }}>person</Icon> {Locale.label("header.memberPortal")}</MenuItem>;
-  const adminPortal = (UserHelper.currentUserChurch && UserHelper.checkAccess(Permissions.contentApi.content.edit)) && (
-    <MenuItem onClick={() => { window.location.href = `${EnvironmentHelper.Common.B1AdminRoot}/login?jwt=${context.userChurch.jwt}&churchId=${context.userChurch.church.id}&returnUrl=/`; }} dense data-testid="admin-portal-menu-item" aria-label={Locale.label("header.goAdminPortal")}><Icon sx={{ marginRight: "10px", fontSize: "20px !important" }}>settings</Icon> {Locale.label("header.adminPortal")}</MenuItem>
+  // Group leaders / scoped admins (Village Coordinators, PG ICT Coordinators,
+  // PG Admins) get the Admin Portal link too — it lands on their groups only.
+  const isFullAdmin = UserHelper.checkAccess(Permissions.contentApi.content.edit);
+  const isScopedGroupAdmin = !isFullAdmin && (
+    UserHelper.checkAccess({ api: "MembershipApi", contentType: "Own Groups", action: "Edit" })
+    || UserHelper.checkAccess({ api: "MembershipApi", contentType: "Own Groups", action: "View" })
+    || !!(context.userChurch?.groups as any[])?.some((g) => g.leader)
+  );
+  const showAdminPortal = UserHelper.currentUserChurch && (isFullAdmin || isScopedGroupAdmin);
+  const adminReturnUrl = isFullAdmin ? "/" : "/groups";
+  const adminPortal = showAdminPortal && (
+    <MenuItem onClick={() => { window.location.href = `${EnvironmentHelper.Common.B1AdminRoot}/login?jwt=${context.userChurch.jwt}&churchId=${context.userChurch.church.id}&returnUrl=${adminReturnUrl}`; }} dense data-testid="admin-portal-menu-item" aria-label={Locale.label("header.goAdminPortal")}><Icon sx={{ marginRight: "10px", fontSize: "20px !important" }}>settings</Icon> {Locale.label("header.adminPortal")}</MenuItem>
   );
 
   const getAccountUrl = () => {
@@ -174,9 +184,9 @@ export function Header(props: Props) {
         <ListItemText primary={Locale.label("header.memberPortal")} />
       </ListItemButton>
     </ListItem>
-    {UserHelper.checkAccess(Permissions.contentApi.content.edit) && (<>
+    {showAdminPortal && (<>
       <ListItem disablePadding>
-        <ListItemButton onClick={() => { window.location.href = `${EnvironmentHelper.Common.B1AdminRoot}/login?jwt=${context.userChurch.jwt}&churchId=${context.userChurch.church.id}&returnUrl=/`; }} data-testid="admin-portal-list-item" aria-label={Locale.label("header.goAdminPortal")}>
+        <ListItemButton onClick={() => { window.location.href = `${EnvironmentHelper.Common.B1AdminRoot}/login?jwt=${context.userChurch.jwt}&churchId=${context.userChurch.church.id}&returnUrl=${adminReturnUrl}`; }} data-testid="admin-portal-list-item" aria-label={Locale.label("header.goAdminPortal")}>
           <ListItemIcon><Icon color="secondary">settings</Icon></ListItemIcon>
           <ListItemText primary={Locale.label("header.adminPortal")} />
         </ListItemButton>
