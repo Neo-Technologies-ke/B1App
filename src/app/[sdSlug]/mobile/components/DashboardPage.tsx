@@ -29,6 +29,43 @@ const resolvePhoto = (item: LinkInterface): string | null => {
   return photo || null;
 };
 
+// Distinct duotone gradient per link type so cards don't all share one muddy
+// primary→secondary blend. `tint` is a soft chip background for quick actions.
+const CARD_STYLES: Record<string, { gradient: string; tint: string; icon: string }> = {
+  calendar:   { gradient: "linear-gradient(135deg,#5b21b6,#4f46e5)", tint: "rgba(99,102,241,0.12)",  icon: "#4f46e5" },
+  bible:      { gradient: "linear-gradient(135deg,#0f766e,#14b8a6)", tint: "rgba(20,184,166,0.12)",  icon: "#0d9488" },
+  votd:       { gradient: "linear-gradient(135deg,#b45309,#f59e0b)", tint: "rgba(245,158,11,0.14)",  icon: "#d97706" },
+  sermons:    { gradient: "linear-gradient(135deg,#be123c,#f43f5e)", tint: "rgba(244,63,94,0.10)",   icon: "#e11d48" },
+  stream:     { gradient: "linear-gradient(135deg,#991b1b,#ef4444)", tint: "rgba(239,68,68,0.10)",   icon: "#dc2626" },
+  donation:   { gradient: "linear-gradient(135deg,#065f46,#10b981)", tint: "rgba(16,185,129,0.12)",  icon: "#059669" },
+  groups:     { gradient: "linear-gradient(135deg,#1d4ed8,#3b82f6)", tint: "rgba(59,130,246,0.12)",  icon: "#2563eb" },
+  directory:  { gradient: "linear-gradient(135deg,#6d28d9,#8b5cf6)", tint: "rgba(139,92,246,0.12)",  icon: "#7c3aed" },
+  plans:      { gradient: "linear-gradient(135deg,#0369a1,#0ea5e9)", tint: "rgba(14,165,233,0.12)",  icon: "#0284c7" },
+  checkin:    { gradient: "linear-gradient(135deg,#047857,#34d399)", tint: "rgba(52,211,153,0.12)",  icon: "#059669" },
+  lessons:    { gradient: "linear-gradient(135deg,#92400e,#d97706)", tint: "rgba(217,119,6,0.12)",   icon: "#b45309" },
+  volunteer:  { gradient: "linear-gradient(135deg,#9d174d,#ec4899)", tint: "rgba(236,72,153,0.10)",  icon: "#db2777" },
+  vivaengage: { gradient: "linear-gradient(135deg,#334155,#64748b)", tint: "rgba(100,116,139,0.12)", icon: "#475569" }
+};
+
+const FALLBACK_STYLES = [
+  CARD_STYLES.groups, CARD_STYLES.bible, CARD_STYLES.votd, CARD_STYLES.plans,
+  CARD_STYLES.directory, CARD_STYLES.volunteer, CARD_STYLES.sermons, CARD_STYLES.vivaengage
+];
+
+const cardStyle = (item: LinkInterface, index: number) =>
+  CARD_STYLES[(item.linkType || "").toLowerCase()] || FALLBACK_STYLES[index % FALLBACK_STYLES.length];
+
+const greetingForHour = (hour: number) => {
+  if (hour < 12) return "Good morning";
+  if (hour < 17) return "Good afternoon";
+  return "Good evening";
+};
+
+// Bottom scrim used over gradients/photos so labels stay readable without a
+// solid colour bar chopping the card in half.
+const scrim = (strong: boolean) =>
+  `linear-gradient(to top, rgba(0,0,0,${strong ? 0.72 : 0.6}) 0%, rgba(0,0,0,0.25) 55%, rgba(0,0,0,0) 100%)`;
+
 export const DashboardPage = ({ config }: Props) => {
   const context = useContext(UserContext);
   const router = useRouter();
@@ -55,11 +92,7 @@ export const DashboardPage = ({ config }: Props) => {
   const navigate = (link: LinkInterface) => {
     incrementViewCount(generateLinkId(link));
     const route = linkTypeToRoute(link.linkType, link.linkData, link.text, link.url);
-    console.log("DashboardPage navigate:", { linkType: link.linkType, route, link });
-    if (!route) {
-      console.log("DashboardPage: No route for link", link);
-      return;
-    }
+    if (!route) return;
     // Custom "url" links always open externally (new window) so iOS standalone
     // PWAs give the user a close button. Relative paths are resolved against the
     // origin first; otherwise they'd navigate in-place out of the mobile shell.
@@ -67,7 +100,6 @@ export const DashboardPage = ({ config }: Props) => {
       const target = route.startsWith("http") ? route : new URL(route, window.location.origin).toString();
       window.open(target, "_blank", "noopener,noreferrer");
     } else {
-      console.log("DashboardPage: Pushing route", route);
       router.push(route);
     }
   };
@@ -80,6 +112,10 @@ export const DashboardPage = ({ config }: Props) => {
   const cardShadow = mobileTheme.shadows.lg;
   const featuredShadow = mobileTheme.shadows.md;
   const quickShadow = mobileTheme.shadows.sm;
+
+  const firstName = ((context.person?.name as { first?: string } | undefined)?.first || "").trim();
+  const greeting = greetingForHour(new Date().getHours());
+  const todayLabel = new Date().toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" });
 
   if (loading) {
     return (
@@ -113,10 +149,22 @@ export const DashboardPage = ({ config }: Props) => {
     <Box sx={{ bgcolor: tc.background, minHeight: "100%", pt: 2, pb: 3 }}>
       <NotificationPermissionBanner enabled={!!jwt} />
 
+      {(firstName || todayLabel) && (
+        <Box sx={{ px: `${mobileTheme.spacing.md}px`, mb: 2.5 }}>
+          <Typography sx={{ fontSize: 24, fontWeight: 700, color: tc.text, lineHeight: 1.2 }}>
+            {firstName ? `${greeting}, ${firstName}` : greeting}
+          </Typography>
+          <Typography sx={{ fontSize: 14, color: tc.textSecondary, mt: 0.25 }}>
+            {todayLabel}
+          </Typography>
+        </Box>
+      )}
+
       {hero && (() => {
         const heroPhoto = resolvePhoto(hero);
         const heroIcon = linkTypeToIcon(hero.linkType, hero.icon);
         const heroTagline = linkTypeToTagline(hero.linkType);
+        const style = cardStyle(hero, 0);
         return (
           <Box sx={{ px: `${mobileTheme.spacing.md}px`, mb: 3 }}>
             <Box
@@ -131,46 +179,48 @@ export const DashboardPage = ({ config }: Props) => {
                 overflow: "hidden",
                 boxShadow: cardShadow,
                 cursor: "pointer",
+                transition: "transform 0.15s ease, box-shadow 0.15s ease",
+                "&:hover": { transform: "translateY(-2px)" },
                 background: heroPhoto
                   ? `url(${heroPhoto}) center / cover`
-                  : `linear-gradient(135deg, ${tc.primary} 0%, ${tc.secondary} 100%)`
+                  : style.gradient
               }}
             >
               {!heroPhoto && (
-                <Box sx={{
+                <Icon sx={{
                   position: "absolute",
-                  inset: 0,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center"
+                  top: 20,
+                  right: 20,
+                  fontSize: 104,
+                  color: "rgba(255,255,255,0.22)"
                 }}>
-                  <Icon sx={{ fontSize: 96, color: "rgba(255,255,255,0.25)" }}>{heroIcon}</Icon>
-                </Box>
+                  {heroIcon}
+                </Icon>
               )}
               <Box sx={{
                 position: "absolute",
-                bottom: 0,
-                left: 0,
-                right: 0,
-                bgcolor: heroPhoto ? "rgba(0,0,0,0.5)" : "rgba(0,0,0,0.25)",
+                inset: 0,
+                background: scrim(!heroPhoto),
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "flex-end",
                 p: "20px"
               }}>
                 <Typography sx={{
                   color: "#FFFFFF",
                   fontWeight: 700,
-                  fontSize: 32,
+                  fontSize: 30,
                   lineHeight: 1.1,
                   mb: 0.5,
-                  textShadow: "0 1px 2px rgba(0,0,0,0.3)"
+                  textShadow: "0 1px 3px rgba(0,0,0,0.4)"
                 }}>
                   {hero.text}
                 </Typography>
                 {heroTagline && (
                   <Typography sx={{
-                    color: "#FFFFFF",
-                    opacity: 0.9,
-                    fontSize: 16,
-                    textShadow: "0 1px 2px rgba(0,0,0,0.3)"
+                    color: "rgba(255,255,255,0.92)",
+                    fontSize: 15,
+                    textShadow: "0 1px 2px rgba(0,0,0,0.4)"
                   }}>
                     {heroTagline}
                   </Typography>
@@ -184,18 +234,19 @@ export const DashboardPage = ({ config }: Props) => {
       {featuredTwo.length > 0 && (
         <Box sx={{ px: `${mobileTheme.spacing.md}px`, mb: 3 }}>
           <Typography sx={{
-            fontSize: 22,
-            fontWeight: 600,
+            fontSize: 18,
+            fontWeight: 700,
             color: tc.text,
-            mb: 2,
+            mb: 1.5,
             pl: 0.5
           }}>
             {Locale.label("mobile.components.featured")}
           </Typography>
           <Box sx={{ display: "flex", gap: `${mobileTheme.spacing.md - 4}px` }}>
-            {featuredTwo.map((item) => {
+            {featuredTwo.map((item, i) => {
               const photo = resolvePhoto(item);
               const itemIcon = linkTypeToIcon(item.linkType, item.icon);
+              const style = cardStyle(item, i + 1);
               return (
                 <Box
                   key={generateLinkId(item)}
@@ -211,36 +262,38 @@ export const DashboardPage = ({ config }: Props) => {
                     overflow: "hidden",
                     boxShadow: featuredShadow,
                     cursor: "pointer",
+                    transition: "transform 0.15s ease, box-shadow 0.15s ease",
+                    "&:hover": { transform: "translateY(-2px)" },
                     background: photo
                       ? `url(${photo}) center / cover`
-                      : `linear-gradient(135deg, ${tc.primary} 0%, ${tc.secondary} 100%)`
+                      : style.gradient
                   }}
                 >
                   {!photo && (
-                    <Box sx={{
+                    <Icon sx={{
                       position: "absolute",
-                      inset: 0,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center"
+                      top: 12,
+                      right: 12,
+                      fontSize: 44,
+                      color: "rgba(255,255,255,0.28)"
                     }}>
-                      <Icon sx={{ fontSize: 56, color: "rgba(255,255,255,0.3)" }}>{itemIcon}</Icon>
-                    </Box>
+                      {itemIcon}
+                    </Icon>
                   )}
                   <Box sx={{
                     position: "absolute",
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    bgcolor: photo ? "rgba(0,0,0,0.6)" : "rgba(0,0,0,0.25)",
-                    p: "12px"
+                    inset: 0,
+                    background: scrim(!photo),
+                    display: "flex",
+                    alignItems: "flex-end",
+                    p: "14px"
                   }}>
                     <Typography sx={{
                       color: "#FFFFFF",
                       fontWeight: 600,
-                      fontSize: 16,
-                      textAlign: "center",
-                      textShadow: "0 1px 2px rgba(0,0,0,0.3)"
+                      fontSize: 15,
+                      lineHeight: 1.2,
+                      textShadow: "0 1px 2px rgba(0,0,0,0.4)"
                     }}>
                       {item.text}
                     </Typography>
@@ -255,63 +308,69 @@ export const DashboardPage = ({ config }: Props) => {
       {others.length > 0 && (
         <Box sx={{ px: `${mobileTheme.spacing.md}px`, mb: 3 }}>
           <Typography sx={{
-            fontSize: 22,
-            fontWeight: 600,
+            fontSize: 18,
+            fontWeight: 700,
             color: tc.text,
-            mb: 2,
+            mb: 1.5,
             pl: 0.5
           }}>
             {Locale.label("mobile.components.quickActions")}
           </Typography>
           <Box sx={{ display: "flex", flexWrap: "wrap", gap: `${mobileTheme.spacing.md - 4}px` }}>
-            {others.map((item) => (
-              <Box
-                key={generateLinkId(item)}
-                role="button"
-                tabIndex={0}
-                onClick={() => navigate(item)}
-                onKeyDown={(e) => handleKey(e, item)}
-                sx={{
-                  width: { xs: "calc(25% - 9px)", sm: "calc(20% - 10px)", md: "calc(16.666% - 10px)" },
-                  minWidth: 70,
-                  alignItems: "center",
-                  display: "flex",
-                  flexDirection: "column",
-                  p: "12px",
-                  bgcolor: tc.surface,
-                  borderRadius: `${mobileTheme.radius.lg}px`,
-                  boxShadow: quickShadow,
-                  cursor: "pointer",
-                  "&:hover": { boxShadow: featuredShadow }
-                }}
-              >
-                <Box sx={{
-                  width: 48,
-                  height: 48,
-                  borderRadius: "24px",
-                  bgcolor: tc.iconBackground,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  mb: 1
-                }}>
-                  <Icon sx={{ fontSize: 24, color: tc.primary }}>{linkTypeToIcon(item.linkType, item.icon)}</Icon>
+            {others.map((item, i) => {
+              const style = cardStyle(item, i + 3);
+              return (
+                <Box
+                  key={generateLinkId(item)}
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => navigate(item)}
+                  onKeyDown={(e) => handleKey(e, item)}
+                  sx={{
+                    width: { xs: "calc(25% - 9px)", sm: "calc(20% - 10px)", md: "calc(16.666% - 10px)" },
+                    minWidth: 76,
+                    alignItems: "center",
+                    display: "flex",
+                    flexDirection: "column",
+                    py: "16px",
+                    px: "8px",
+                    bgcolor: tc.surface,
+                    borderRadius: `${mobileTheme.radius.lg}px`,
+                    boxShadow: quickShadow,
+                    border: `1px solid ${tc.borderLight || tc.border}`,
+                    cursor: "pointer",
+                    transition: "transform 0.15s ease, box-shadow 0.15s ease",
+                    "&:hover": { transform: "translateY(-2px)", boxShadow: featuredShadow }
+                  }}
+                >
+                  <Box sx={{
+                    width: 48,
+                    height: 48,
+                    borderRadius: "16px",
+                    bgcolor: style.tint,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    mb: 1.25
+                  }}>
+                    <Icon sx={{ fontSize: 26, color: style.icon }}>{linkTypeToIcon(item.linkType, item.icon)}</Icon>
+                  </Box>
+                  <Typography sx={{
+                    color: tc.text,
+                    textAlign: "center",
+                    fontSize: 12,
+                    fontWeight: 500,
+                    lineHeight: 1.25,
+                    display: "-webkit-box",
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: "vertical",
+                    overflow: "hidden"
+                  }}>
+                    {item.text}
+                  </Typography>
                 </Box>
-                <Typography sx={{
-                  color: tc.text,
-                  textAlign: "center",
-                  fontSize: 12,
-                  fontWeight: 500,
-                  lineHeight: 1.2,
-                  display: "-webkit-box",
-                  WebkitLineClamp: 2,
-                  WebkitBoxOrient: "vertical",
-                  overflow: "hidden"
-                }}>
-                  {item.text}
-                </Typography>
-              </Box>
-            ))}
+              );
+            })}
           </Box>
         </Box>
       )}
