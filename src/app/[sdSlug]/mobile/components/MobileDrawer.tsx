@@ -59,7 +59,7 @@ export const MobileDrawer = ({ links, onNavigate }: Props) => {
     const relevant = pathname.substring(idx).split("?")[0];
     const target = url.split("?")[0];
 
-    if (target === "/mobile/dashboard") return false;
+    if (target === "/mobile/dashboard") return relevant === target;
     return relevant === target || relevant.startsWith(target + "/");
   };
 
@@ -116,6 +116,34 @@ export const MobileDrawer = ({ links, onNavigate }: Props) => {
       </Box>
 
       <Box sx={{ flex: 1, overflowY: "auto" }}>
+        <Link href="/mobile/dashboard" onClick={onNavigate} style={{ textDecoration: "none", color: "inherit" }}>
+          <Box sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 1.5,
+            minHeight: 48,
+            px: `${mobileTheme.spacing.md}px`,
+            py: `${mobileTheme.spacing.sm + 4}px`,
+            borderBottom: `1px solid ${tc.border}`,
+            bgcolor: isActive("/mobile/dashboard") ? tc.primary : "transparent",
+            cursor: "pointer",
+            "&:hover": { bgcolor: isActive("/mobile/dashboard") ? tc.primary : tc.iconBackground }
+          }}>
+            <Icon sx={{ fontSize: 24, color: isActive("/mobile/dashboard") ? tc.onPrimary : tc.primary }}>dashboard</Icon>
+            <Typography sx={{
+              fontSize: 16,
+              fontWeight: isActive("/mobile/dashboard") ? 600 : 500,
+              color: isActive("/mobile/dashboard") ? tc.onPrimary : tc.text,
+              flex: 1,
+              minWidth: 0,
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis"
+            }}>
+              Dashboard
+            </Typography>
+          </Box>
+        </Link>
         {canAccessAdmin && (
           <Box
             component="a"

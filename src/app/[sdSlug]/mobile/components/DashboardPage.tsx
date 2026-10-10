@@ -184,15 +184,29 @@ export const DashboardPage = ({ config }: Props) => {
               }}
             >
               {!heroPhoto && (
-                <Icon sx={{
-                  position: "absolute",
-                  top: 20,
-                  right: 20,
-                  fontSize: 104,
-                  color: "rgba(255,255,255,0.22)"
-                }}>
-                  {heroIcon}
-                </Icon>
+                <>
+                  <Icon sx={{
+                    position: "absolute",
+                    right: -30,
+                    top: "50%",
+                    transform: "translateY(-50%) rotate(-8deg)",
+                    fontSize: 180,
+                    color: "rgba(255,255,255,0.28)",
+                    pointerEvents: "none"
+                  }}>
+                    {heroIcon}
+                  </Icon>
+                  <Icon sx={{
+                    position: "absolute",
+                    right: 130,
+                    top: 24,
+                    fontSize: 56,
+                    color: "rgba(255,255,255,0.16)",
+                    pointerEvents: "none"
+                  }}>
+                    {heroIcon}
+                  </Icon>
+                </>
               )}
               <Box sx={{
                 position: "absolute",
@@ -269,10 +283,12 @@ export const DashboardPage = ({ config }: Props) => {
                   {!photo && (
                     <Icon sx={{
                       position: "absolute",
-                      top: 12,
-                      right: 12,
-                      fontSize: 44,
-                      color: "rgba(255,255,255,0.28)"
+                      right: -16,
+                      top: "50%",
+                      transform: "translateY(-50%) rotate(-8deg)",
+                      fontSize: 92,
+                      color: "rgba(255,255,255,0.30)",
+                      pointerEvents: "none"
                     }}>
                       {itemIcon}
                     </Icon>
