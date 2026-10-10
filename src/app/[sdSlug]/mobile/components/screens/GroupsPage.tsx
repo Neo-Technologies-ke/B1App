@@ -18,6 +18,40 @@ interface Props {
 
 const ENGAGEMENT_STORAGE_KEY = "b1app-group-view-counts";
 
+// Deterministic per-group accent so cards get distinct duotone gradients
+// instead of every card sharing the same church-primary blend. Hashing the
+// group id keeps colours stable across re-ordering.
+const GROUP_PALETTES: Array<{ gradient: string; accent: string }> = [
+  { gradient: "linear-gradient(135deg,#6d28d9,#8b5cf6)", accent: "#8b5cf6" },
+  { gradient: "linear-gradient(135deg,#0f766e,#14b8a6)", accent: "#14b8a6" },
+  { gradient: "linear-gradient(135deg,#b45309,#f59e0b)", accent: "#f59e0b" },
+  { gradient: "linear-gradient(135deg,#be123c,#f43f5e)", accent: "#f43f5e" },
+  { gradient: "linear-gradient(135deg,#1d4ed8,#3b82f6)", accent: "#3b82f6" },
+  { gradient: "linear-gradient(135deg,#9d174d,#ec4899)", accent: "#ec4899" },
+  { gradient: "linear-gradient(135deg,#065f46,#10b981)", accent: "#10b981" },
+  { gradient: "linear-gradient(135deg,#0369a1,#0ea5e9)", accent: "#0ea5e9" }
+];
+
+const paletteFor = (group: GroupInterface) => {
+  const id = group.id || group.name || "";
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
+  return GROUP_PALETTES[h % GROUP_PALETTES.length];
+};
+
+// Category-aware icons — villages, people groups, teams etc. read better than
+// the same generic "groups" glyph everywhere.
+const groupIcon = (group: GroupInterface): string => {
+  const cat = (group.categoryName || "").toLowerCase();
+  if (cat.includes("village")) return "holiday_village";
+  if (cat.includes("people")) return "diversity_3";
+  if (cat.includes("team")) return "groups_2";
+  if (cat.includes("ministry")) return "church";
+  if (cat.includes("responsibility")) return "workspace_premium";
+  if (cat.includes("marital")) return "favorite";
+  return "groups";
+};
+
 export const GroupsPage = ({ config: _config }: Props) => {
   const tc = mobileTheme.colors;
   const router = useRouter();
@@ -109,7 +143,7 @@ export const GroupsPage = ({ config: _config }: Props) => {
 
   const renderHero = (group: GroupInterface) => {
     const hasPhoto = !!group.photoUrl;
-    const fallbackBg = `linear-gradient(135deg, ${tc.primary} 0%, ${tc.secondary} 100%)`;
+    const palette = paletteFor(group);
     return (
       <Box
         key={`hero-${group.id}`}
@@ -125,45 +159,84 @@ export const GroupsPage = ({ config: _config }: Props) => {
         sx={{
           position: "relative",
           width: "100%",
-          height: 200,
+          height: 150,
           borderRadius: `${mobileTheme.radius.xl}px`,
           overflow: "hidden",
           boxShadow: mobileTheme.shadows.md,
           cursor: "pointer",
-          background: hasPhoto ? "transparent" : fallbackBg,
-          transition: "box-shadow 150ms ease, transform 150ms ease",
-          "&:hover": { boxShadow: mobileTheme.shadows.lg },
+          background: hasPhoto ? "transparent" : palette.gradient,
+          transition: "box-shadow 200ms ease, transform 200ms ease",
+          "&:hover": { boxShadow: mobileTheme.shadows.lg, transform: "translateY(-2px)" },
+          "&:focus-visible": { outline: `2px solid ${tc.primary}`, outlineOffset: 2 },
           "&:active": { transform: "scale(0.995)" }
         }}
       >
-        {hasPhoto ? (
+        {hasPhoto && (
           <Box
             component="img"
             src={group.photoUrl}
             alt={group.name || "Group"}
             sx={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
           />
-        ) : (
-          <Box sx={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <Icon sx={{ fontSize: 72, color: "rgba(255,255,255,0.7)" }}>groups</Icon>
-          </Box>
+        )}
+        {!hasPhoto && (
+          <Icon sx={{
+            position: "absolute",
+            right: -24,
+            top: "50%",
+            transform: "translateY(-50%) rotate(-8deg)",
+            fontSize: 150,
+            color: "rgba(255,255,255,0.28)",
+            pointerEvents: "none"
+          }}>
+            {groupIcon(group)}
+          </Icon>
         )}
         <Box
           sx={{
             position: "absolute",
-            left: 0,
-            right: 0,
-            bottom: 0,
-            p: `${mobileTheme.spacing.md}px`,
-            background: "linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%)"
+            inset: 0,
+            display: "flex",
+            alignItems: "flex-end",
+            justifyContent: "space-between",
+            gap: "12px",
+            p: "16px 20px",
+            background: "linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.2) 55%, rgba(0,0,0,0) 100%)"
           }}
         >
-          <Typography sx={{ color: "#FFFFFF", fontSize: 24, fontWeight: 700, textShadow: "0 1px 2px rgba(0,0,0,0.3)" }}>
-            {group.name}
-          </Typography>
-          <Typography sx={{ color: "#FFFFFF", opacity: 0.9, fontSize: 14, textShadow: "0 1px 2px rgba(0,0,0,0.3)" }}>
-            {groupSubtext(group) || "Tap to explore"}
-          </Typography>
+          <Box sx={{ minWidth: 0 }}>
+            {group.categoryName && (
+              <Typography sx={{
+                color: "rgba(255,255,255,0.85)",
+                fontSize: 11,
+                fontWeight: 600,
+                letterSpacing: 0.8,
+                textTransform: "uppercase",
+                textShadow: "0 1px 2px rgba(0,0,0,0.4)"
+              }}>
+                {group.categoryName}
+              </Typography>
+            )}
+            <Typography sx={{ color: "#FFFFFF", fontSize: 22, fontWeight: 700, lineHeight: 1.1, textShadow: "0 1px 3px rgba(0,0,0,0.4)" }}>
+              {group.name}
+            </Typography>
+            <Typography sx={{ color: "#FFFFFF", opacity: 0.9, fontSize: 13, mt: 0.25, textShadow: "0 1px 2px rgba(0,0,0,0.4)" }}>
+              {groupSubtext(group) || "Tap to explore"}
+            </Typography>
+          </Box>
+          <Box sx={{
+            flexShrink: 0,
+            width: 36,
+            height: 36,
+            borderRadius: "50%",
+            bgcolor: "rgba(255,255,255,0.92)",
+            color: "#1f2937",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center"
+          }}>
+            <Icon sx={{ fontSize: 20 }}>arrow_forward</Icon>
+          </Box>
         </Box>
       </Box>
     );
@@ -171,7 +244,7 @@ export const GroupsPage = ({ config: _config }: Props) => {
 
   const renderFeatured = (group: GroupInterface) => {
     const hasPhoto = !!group.photoUrl;
-    const fallbackBg = `linear-gradient(135deg, ${tc.primary} 0%, ${tc.secondary} 100%)`;
+    const palette = paletteFor(group);
     return (
       <Box
         key={`featured-${group.id}`}
@@ -186,38 +259,48 @@ export const GroupsPage = ({ config: _config }: Props) => {
         }}
         sx={{
           position: "relative",
-          height: 120,
+          height: 130,
           borderRadius: `${mobileTheme.radius.lg}px`,
           overflow: "hidden",
           boxShadow: mobileTheme.shadows.sm,
           cursor: "pointer",
-          background: hasPhoto ? "transparent" : fallbackBg,
-          transition: "box-shadow 150ms ease, transform 150ms ease",
-          "&:hover": { boxShadow: mobileTheme.shadows.md },
+          background: hasPhoto ? "transparent" : palette.gradient,
+          transition: "box-shadow 200ms ease, transform 200ms ease",
+          "&:hover": { boxShadow: mobileTheme.shadows.md, transform: "translateY(-2px)" },
+          "&:focus-visible": { outline: `2px solid ${tc.primary}`, outlineOffset: 2 },
           "&:active": { transform: "scale(0.995)" }
         }}
       >
-        {hasPhoto ? (
+        {hasPhoto && (
           <Box
             component="img"
             src={group.photoUrl}
             alt={group.name || "Group"}
             sx={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
           />
-        ) : (
-          <Box sx={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <Icon sx={{ fontSize: 40, color: "rgba(255,255,255,0.7)" }}>groups</Icon>
-          </Box>
+        )}
+        {!hasPhoto && (
+          <Icon sx={{
+            position: "absolute",
+            right: -16,
+            top: "50%",
+            transform: "translateY(-50%) rotate(-8deg)",
+            fontSize: 100,
+            color: "rgba(255,255,255,0.30)",
+            pointerEvents: "none"
+          }}>
+            {groupIcon(group)}
+          </Icon>
         )}
         <Box
           sx={{
             position: "absolute",
             inset: 0,
             display: "flex",
-            alignItems: "flex-end",
-            justifyContent: "center",
-            p: "12px",
-            background: "linear-gradient(to top, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.1) 60%, rgba(0,0,0,0) 100%)"
+            flexDirection: "column",
+            justifyContent: "flex-end",
+            p: "14px",
+            background: "linear-gradient(to top, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.1) 60%, rgba(0,0,0,0) 100%)"
           }}
         >
           <Typography
@@ -225,8 +308,8 @@ export const GroupsPage = ({ config: _config }: Props) => {
               color: "#FFFFFF",
               fontSize: 14,
               fontWeight: 600,
-              textAlign: "center",
-              textShadow: "0 1px 2px rgba(0,0,0,0.3)",
+              lineHeight: 1.2,
+              textShadow: "0 1px 2px rgba(0,0,0,0.4)",
               overflow: "hidden",
               textOverflow: "ellipsis",
               display: "-webkit-box",
@@ -236,6 +319,11 @@ export const GroupsPage = ({ config: _config }: Props) => {
           >
             {group.name}
           </Typography>
+          {groupSubtext(group) && (
+            <Typography sx={{ color: "rgba(255,255,255,0.85)", fontSize: 11, mt: 0.25, textShadow: "0 1px 2px rgba(0,0,0,0.4)" }}>
+              {groupSubtext(group)}
+            </Typography>
+          )}
         </Box>
       </Box>
     );
@@ -243,6 +331,7 @@ export const GroupsPage = ({ config: _config }: Props) => {
 
   const renderCard = (group: GroupInterface) => {
     const hasPhoto = !!group.photoUrl;
+    const palette = paletteFor(group);
     return (
       <Box
         key={group.id}
@@ -264,20 +353,21 @@ export const GroupsPage = ({ config: _config }: Props) => {
           boxShadow: mobileTheme.shadows.sm,
           p: "12px",
           cursor: "pointer",
-          transition: "box-shadow 150ms ease, transform 150ms ease",
+          transition: "box-shadow 200ms ease, transform 200ms ease",
           overflow: "hidden",
-          "&:hover": { boxShadow: mobileTheme.shadows.md },
+          "&:hover": { boxShadow: mobileTheme.shadows.md, transform: "translateY(-1px)" },
+          "&:focus-visible": { outline: `2px solid ${tc.primary}`, outlineOffset: 2 },
           "&:active": { transform: "scale(0.995)" }
         }}
       >
         <Box
           sx={{
-            width: 60,
-            height: 60,
-            borderRadius: `${mobileTheme.radius.md}px`,
+            width: 56,
+            height: 56,
+            borderRadius: "16px",
             overflow: "hidden",
             flexShrink: 0,
-            bgcolor: hasPhoto ? "transparent" : tc.primaryLight,
+            background: hasPhoto ? "transparent" : `${palette.accent}1f`,
             display: "flex",
             alignItems: "center",
             justifyContent: "center"
@@ -291,7 +381,7 @@ export const GroupsPage = ({ config: _config }: Props) => {
               sx={{ width: "100%", height: "100%", objectFit: "cover" }}
             />
           ) : (
-            <Icon sx={{ fontSize: 28, color: tc.primary, opacity: 0.6 }}>groups</Icon>
+            <Icon sx={{ fontSize: 26, color: palette.accent }}>{groupIcon(group)}</Icon>
           )}
         </Box>
         <Box sx={{ flex: 1, minWidth: 0 }}>
@@ -332,6 +422,7 @@ export const GroupsPage = ({ config: _config }: Props) => {
             </Box>
           )}
         </Box>
+        <Icon sx={{ fontSize: 20, color: tc.textHint, flexShrink: 0 }}>chevron_right</Icon>
       </Box>
     );
   };
