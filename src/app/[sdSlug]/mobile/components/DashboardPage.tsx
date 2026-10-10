@@ -46,8 +46,7 @@ const STOCK_IMAGE_TYPES = new Set(["bible", "votd", "lessons", "checkin", "donat
 
 const stockImage = (item: LinkInterface): string | null => {
   const type = (item.linkType || "").toLowerCase();
-  if (!STOCK_IMAGE_TYPES.has(type) || item.icon) return null;
-  return linkTypeToImage(type, item.text);
+  return STOCK_IMAGE_TYPES.has(type) ? linkTypeToImage(type, item.text) : null;
 };
 
 // Distinct duotone gradient per link type so cards don't all share one muddy
