@@ -34,16 +34,22 @@ export const MobileDrawer = ({ links, onNavigate }: Props) => {
   const firstName = context?.person?.name?.first || context?.user?.firstName || "";
   const lastName = context?.person?.name?.last || context?.user?.lastName || "";
   const initials = getInitials({ name: { first: firstName, last: lastName } });
-  const canAccessAdmin = UserHelper.currentUserChurch && UserHelper.checkAccess(Permissions.contentApi.content.edit);
+  const isFullAdmin = UserHelper.checkAccess(Permissions.contentApi.content.edit);
+  const isScopedGroupAdmin = !isFullAdmin && (
+    UserHelper.checkAccess({ api: "MembershipApi", contentType: "Own Groups", action: "Edit" })
+    || UserHelper.checkAccess({ api: "MembershipApi", contentType: "Own Groups", action: "View" })
+    || !!context?.userChurch?.groups?.some((g) => g.leader)
+  );
+  const canAccessAdmin = UserHelper.currentUserChurch && (isFullAdmin || isScopedGroupAdmin);
 
   const adminUrl = React.useMemo(() => {
     if (!canAccessAdmin || !context?.userChurch?.jwt || !context?.userChurch?.church?.id) return "";
     const url = new URL("/login", EnvironmentHelper.Common.B1AdminRoot);
     url.searchParams.set("jwt", context.userChurch.jwt);
     url.searchParams.set("churchId", context.userChurch.church.id);
-    url.searchParams.set("returnUrl", "/");
+    url.searchParams.set("returnUrl", isFullAdmin ? "/" : "/groups");
     return url.toString();
-  }, [canAccessAdmin, context?.userChurch?.jwt, context?.userChurch?.church?.id]);
+  }, [canAccessAdmin, isFullAdmin, context?.userChurch?.jwt, context?.userChurch?.church?.id]);
 
   const isActive = (url: string): boolean => {
     if (!pathname || url.startsWith("http")) return false;
